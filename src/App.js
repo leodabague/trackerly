@@ -11,7 +11,7 @@ const App = () => {
     minutos: 0,
     cluster: 'Desenvolvimento'
   });
-  const [horasDisponiveis, setHorasDisponiveis] = useState(5 * 4); // 5h por semana * 4 semanas
+  const [horasDisponiveis, setHorasDisponiveis] = useState(1); // Iniciando com visão diária
   const [horasUsadas, setHorasUsadas] = useState(0);
   const [dataSelecionada, setDataSelecionada] = useState(new Date());
   const [view, setView] = useState('diario'); // diario, semanal, mensal
@@ -27,6 +27,8 @@ const App = () => {
   const [showExportModal, setShowExportModal] = useState(false);
   const [nomeArquivo, setNomeArquivo] = useState('horas-consultoria-dados.json');
   const [darkMode, setDarkMode] = useState(false);
+  const [listaExpandida, setListaExpandida] = useState(false);
+  const [isFlipped, setIsFlipped] = useState(false);
 
   // Cores dos clusters
   const clusterColors = {
@@ -86,7 +88,7 @@ const App = () => {
     calcularHorasUsadas();
   }, [calcularHorasUsadas]);
   
-  // Efeito para carregar dados salvos ao inicializar
+  // Efeito para carregar dados salvos e tema ao inicializar
   useEffect(() => {
     carregarDadosSalvos();
     
@@ -99,7 +101,25 @@ const App = () => {
       const prefereEscuro = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
       setDarkMode(prefereEscuro);
     }
-  }, []);
+  }, []); // Este efeito só precisa rodar uma vez na inicialização
+
+  // Efeito para atualizar horas disponíveis quando a view mudar
+  useEffect(() => {
+    // Definir horas disponíveis baseado na view
+    switch(view) {
+      case 'diario':
+        setHorasDisponiveis(1);
+        break;
+      case 'semanal':
+        setHorasDisponiveis(5);
+        break;
+      case 'mensal':
+        setHorasDisponiveis(20);
+        break;
+      default:
+        setHorasDisponiveis(1);
+    }
+  }, [view]); // Este efeito roda quando a view muda
 
   // Função para adicionar uma nova tarefa
   const adicionarTarefa = () => {
@@ -412,6 +432,28 @@ const App = () => {
     setTarefaEditando(null);
   };
 
+  // Adicione esta função após as outras funções auxiliares
+  const calcularProjecaoMensal = () => {
+    const hoje = new Date();
+    const ultimoDiaMes = new Date(hoje.getFullYear(), hoje.getMonth() + 1, 0).getDate();
+    const diaAtual = hoje.getDate();
+    const diasRestantes = ultimoDiaMes - diaAtual;
+    
+    // Média diária de horas usadas até agora
+    const mediaDiaria = horasUsadas / diaAtual;
+    
+    // Projeção para o mês inteiro
+    const projecaoTotal = horasUsadas + (mediaDiaria * diasRestantes);
+    
+    return {
+      projecaoTotal: projecaoTotal.toFixed(1),
+      diferenca: (projecaoTotal - 20).toFixed(1), // 20 horas é o limite mensal
+      diasRestantes,
+      diaAtual,
+      ultimoDiaMes
+    };
+  };
+
   return (
     <>
       <div className={`fixed inset-0 ${darkMode ? 'bg-gray-900' : 'bg-gray-50'} transition-colors duration-300`} />
@@ -432,7 +474,10 @@ const App = () => {
         <div className={`flex justify-between items-center mb-6 ${darkMode ? 'bg-gray-800' : 'bg-white'} p-4 rounded-lg shadow-sm`}>
           <div className="flex gap-2">
             <button 
-              onClick={() => setView('diario')} 
+              onClick={() => {
+                setView('diario');
+                setHorasDisponiveis(1); // 1 hora por dia
+              }} 
               className={`px-3 py-1 rounded ${view === 'diario' 
                 ? 'bg-blue-500 text-white' 
                 : darkMode ? 'bg-gray-700 text-gray-300' : 'bg-gray-200 text-gray-700'}`}
@@ -440,7 +485,10 @@ const App = () => {
               Diário
             </button>
             <button 
-              onClick={() => setView('semanal')} 
+              onClick={() => {
+                setView('semanal');
+                setHorasDisponiveis(5); // 5 horas por semana
+              }} 
               className={`px-3 py-1 rounded ${view === 'semanal' 
                 ? 'bg-blue-500 text-white' 
                 : darkMode ? 'bg-gray-700 text-gray-300' : 'bg-gray-200 text-gray-700'}`}
@@ -448,7 +496,10 @@ const App = () => {
               Semanal
             </button>
             <button 
-              onClick={() => setView('mensal')} 
+              onClick={() => {
+                setView('mensal');
+                setHorasDisponiveis(20); // 20 horas por mês
+              }} 
               className={`px-3 py-1 rounded ${view === 'mensal' 
                 ? 'bg-blue-500 text-white' 
                 : darkMode ? 'bg-gray-700 text-gray-300' : 'bg-gray-200 text-gray-700'}`}
@@ -470,21 +521,115 @@ const App = () => {
         
         {/* Resumo de Horas */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-          <div className={`${darkMode ? 'bg-gray-800' : 'bg-white'} p-6 rounded-lg shadow-sm flex items-center`}>
-            <div className="mr-4 p-3 bg-blue-100 rounded-full">
-              <Clock className="text-blue-500" size={24} />
-            </div>
-            <div>
-              <h3 className={`${darkMode ? 'text-gray-400' : 'text-gray-500'} text-sm font-medium`}>Horas Registradas</h3>
-              <p className={`text-2xl font-bold ${darkMode ? 'text-white' : ''}`}>
-                {horasUsadas.toFixed(1)}h
-                <span className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}> / {horasDisponiveis}h</span>
-              </p>
-              <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
-                <div 
-                  className="bg-blue-500 h-2 rounded-full" 
-                  style={{ width: `${Math.min(100, (horasUsadas / horasDisponiveis) * 100)}%` }}
-                ></div>
+          <div className="h-full perspective-1000">
+            <div 
+              className={`relative w-full h-full transition-transform duration-500 transform-style-preserve-3d ${
+                isFlipped ? 'rotate-y-180' : ''
+              }`}
+            >
+              {/* Frente do Card */}
+              <div className={`absolute w-full h-full backface-hidden ${darkMode ? 'bg-gray-800' : 'bg-white'} p-6 rounded-lg shadow-sm`}>
+                <div className="h-full flex flex-col">
+                  <div className="flex items-center justify-between mb-6">
+                    <h3 className={`text-lg font-medium ${darkMode ? 'text-gray-200' : 'text-gray-800'}`}>
+                      Horas Registradas
+                    </h3>
+                    {view === 'mensal' && (
+                      <button 
+                        onClick={() => setIsFlipped(!isFlipped)}
+                        className={`p-2 rounded-full hover:bg-gray-100 transition-colors ${
+                          darkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100'
+                        }`}
+                      >
+                        <svg 
+                          xmlns="http://www.w3.org/2000/svg" 
+                          className={`h-6 w-6 ${darkMode ? 'text-gray-400' : 'text-gray-600'} transform transition-transform ${
+                            isFlipped ? 'rotate-180' : ''
+                          }`} 
+                          fill="none" 
+                          viewBox="0 0 24 24" 
+                          stroke="currentColor"
+                        >
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 9l3 3m0 0l-3 3m3-3H8m13 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                      </button>
+                    )}
+                  </div>
+
+                  <div className="flex-1 flex items-center">
+                    <div className="w-full">
+                      <div className="flex items-center gap-4 mb-4">
+                        <div className="p-3 bg-blue-100 rounded-full">
+                          <Clock className="text-blue-500" size={24} />
+                        </div>
+                        <p className={`text-2xl font-bold ${darkMode ? 'text-white' : ''}`}>
+                          {horasUsadas.toFixed(1)}h
+                          <span className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}> / {horasDisponiveis}h</span>
+                        </p>
+                      </div>
+                      <div className="w-full bg-gray-200 rounded-full h-2">
+                        <div 
+                          className="bg-blue-500 h-2 rounded-full" 
+                          style={{ width: `${Math.min(100, (horasUsadas / horasDisponiveis) * 100)}%` }}
+                        ></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Verso do Card (Projeção) */}
+              <div className={`absolute w-full h-full backface-hidden rotate-y-180 ${darkMode ? 'bg-gray-800' : 'bg-white'} p-6 rounded-lg shadow-sm`}>
+                <div className="h-full flex flex-col">
+                  <div className="flex items-center justify-between mb-6">
+                    <h3 className={`text-lg font-medium ${darkMode ? 'text-gray-200' : 'text-gray-800'}`}>
+                      Projeção Mensal
+                    </h3>
+                    <button 
+                      onClick={() => setIsFlipped(!isFlipped)}
+                      className={`p-2 rounded-full hover:bg-gray-100 transition-colors ${
+                        darkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100'
+                      }`}
+                    >
+                      <svg 
+                        xmlns="http://www.w3.org/2000/svg" 
+                        className={`h-6 w-6 ${darkMode ? 'text-gray-400' : 'text-gray-600'}`} 
+                        fill="none" 
+                        viewBox="0 0 24 24" 
+                        stroke="currentColor"
+                      >
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 15l-3-3m0 0l3-3m-3 3h8M3 12a9 9 0 1118 0 9 9 0 01-18 0z" />
+                      </svg>
+                    </button>
+                  </div>
+                  
+                  <div className="flex-1 flex items-center">
+                    <div className="w-full space-y-4">
+                      <div>
+                        <p className={`text-3xl font-bold ${
+                          calcularProjecaoMensal().diferenca > 0 ? 'text-red-500' : 'text-green-500'
+                        }`}>
+                          {calcularProjecaoMensal().projecaoTotal}h
+                        </p>
+                        <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                          Projeção total para o mês
+                        </p>
+                      </div>
+                      
+                      <div>
+                        <p className={`text-sm font-medium ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                          {calcularProjecaoMensal().diferenca > 0 
+                            ? `${calcularProjecaoMensal().diferenca}h acima do limite`
+                            : `${Math.abs(calcularProjecaoMensal().diferenca)}h abaixo do limite`
+                          }
+                        </p>
+                        <p className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                          Baseado em {calcularProjecaoMensal().diaAtual} dias de {calcularProjecaoMensal().ultimoDiaMes}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -573,13 +718,23 @@ const App = () => {
                   return dataTarefa >= inicioMes && dataTarefa <= fimMes;
                 }
                 return false;
-              }).map((tarefa) => (
+              })
+              .slice(0, listaExpandida ? undefined : 5)
+              .map((tarefa) => (
                 <div key={tarefa.id} className={`flex items-center justify-between p-4 ${darkMode ? 'bg-gray-700' : 'bg-white'} rounded-lg shadow mb-4`}>
                   <div className="flex-1">
                     <h3 className={`text-lg font-semibold ${darkMode ? 'text-white' : 'text-gray-900'}`}>{tarefa.nome}</h3>
-                    <p className={`text-sm ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
-                      {tarefa.data} - {tarefa.cluster} - {tarefa.horas}h {tarefa.minutos}m
-                    </p>
+                    <div className="flex items-center gap-2 mt-1">
+                      <span className={`text-sm ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                        {tarefa.data}
+                      </span>
+                      <span className={`px-2 py-1 text-xs font-medium rounded-full ${clusterColors[tarefa.cluster]} bg-opacity-20 text-${clusterColors[tarefa.cluster].replace('bg-', '')}`}>
+                        {tarefa.cluster}
+                      </span>
+                      <span className={`text-sm ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                        {tarefa.horas}h {tarefa.minutos}m
+                      </span>
+                    </div>
                   </div>
                   <div className="flex space-x-2">
                     <button
@@ -601,6 +756,41 @@ const App = () => {
                   </div>
                 </div>
               ))}
+              
+              {/* Botão Ver Mais/Ver Menos */}
+              {tarefas.filter(tarefa => {
+                const dataTarefa = converterDataParaDate(tarefa.data);
+                dataTarefa.setHours(0, 0, 0, 0);
+                
+                if (view === 'diario') {
+                  const hoje = new Date(dataSelecionada);
+                  hoje.setHours(0, 0, 0, 0);
+                  return dataTarefa.getTime() === hoje.getTime();
+                } else if (view === 'semanal') {
+                  const inicioSemana = new Date(weekStart);
+                  inicioSemana.setHours(0, 0, 0, 0);
+                  const fimSemana = new Date(weekStart);
+                  fimSemana.setDate(fimSemana.getDate() + 6);
+                  fimSemana.setHours(23, 59, 59, 999);
+                  return dataTarefa >= inicioSemana && dataTarefa <= fimSemana;
+                } else if (view === 'mensal') {
+                  const inicioMes = new Date(monthStart);
+                  const fimMes = new Date(monthStart.getFullYear(), monthStart.getMonth() + 1, 0, 23, 59, 59, 999);
+                  return dataTarefa >= inicioMes && dataTarefa <= fimMes;
+                }
+                return false;
+              }).length > 5 && (
+                <button
+                  onClick={() => setListaExpandida(!listaExpandida)}
+                  className={`w-full mt-4 px-4 py-2 text-sm font-medium rounded-md ${
+                    darkMode 
+                      ? 'bg-gray-700 text-gray-300 hover:bg-gray-600' 
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+                >
+                  {listaExpandida ? 'Ver menos' : 'Ver mais'}
+                </button>
+              )}
             </div>
           )}
         </div>
@@ -926,6 +1116,23 @@ const App = () => {
           </div>
         )}
       </div>
+      <style jsx global>{`
+        .perspective-1000 {
+          perspective: 1000px;
+        }
+        
+        .transform-style-preserve-3d {
+          transform-style: preserve-3d;
+        }
+        
+        .backface-hidden {
+          backface-visibility: hidden;
+        }
+        
+        .rotate-y-180 {
+          transform: rotateY(180deg);
+        }
+      `}</style>
     </>
   );
 };
