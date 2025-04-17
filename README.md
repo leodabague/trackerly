@@ -1,70 +1,76 @@
-# Getting Started with Create React App
+# Trackerly - Rastreador de Tempo para Projetos
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+![Trackerly Logo](public/schedule.ico)
 
-## Available Scripts
+## 📝 Sobre o Projeto
 
-In the project directory, you can run:
+Trackerly é uma aplicação web moderna desenvolvida em React para ajudar profissionais a gerenciar e rastrear o tempo dedicado a diferentes projetos e atividades. Com uma interface intuitiva e recursos poderosos, o Trackerly permite que você mantenha um controle preciso das horas trabalhadas em diferentes categorias.
 
-### `npm start`
+## ✨ Funcionalidades Principais
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+- **Visualização Flexível**: Alternância entre visualizações diária, semanal e mensal
+- **Categorização por Clusters**: Organize suas tarefas em categorias como Desenvolvimento, Reuniões, Pesquisa e Documentação
+- **Projeção de Horas**: Visualize projeções mensais baseadas no seu progresso atual
+- **Modo Escuro**: Interface adaptativa com suporte a tema claro e escuro
+- **Exportação de Dados**: Exporte e importe seus dados facilmente
+- **Relatórios**: Geração de relatórios mensais para acompanhamento
+- **Persistência Local**: Seus dados são salvos automaticamente no navegador
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+## 🚀 Como Usar
 
-### `npm test`
+1. **Adicionar Tarefas**: Clique no botão "Adicionar" para registrar uma nova tarefa
+2. **Definir Detalhes**: Especifique nome, data, duração e categoria da tarefa
+3. **Visualizar Progresso**: Acompanhe suas horas através das diferentes visualizações
+4. **Exportar Dados**: Use o botão de exportação para fazer backup dos seus dados
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## 🛠️ Tecnologias Utilizadas
 
-### `npm run build`
+- React.js
+- Tailwind CSS
+- Lucide React (para ícones)
+- LocalStorage para persistência de dados
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+## 💻 Instalação
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+1. Clone o repositório:
+```bash
+git clone https://github.com/leodabague/trackerly.git
+```
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+2. Instale as dependências:
+```bash
+cd trackerly
+npm install
+```
 
-### `npm run eject`
+3. Inicie o projeto:
+```bash
+npm start
+```
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+## 📱 Compatibilidade
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+O Trackerly é totalmente responsivo e funciona em:
+- Desktop (Chrome, Firefox, Safari, Edge)
+- Tablets
+- Smartphones
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+## 🤝 Contribuições
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+Contribuições são bem-vindas! Sinta-se à vontade para:
+- Reportar bugs
+- Sugerir novas funcionalidades
+- Enviar pull requests
 
-## Learn More
+## 📄 Licença
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para mais detalhes.
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+## 👨‍💻 Autor
 
-### Code Splitting
+**Leo Dabague**
+- GitHub: [@seu-usuario](https://github.com/leodabague)
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+---
 
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+⭐️ Se você gostou do projeto, considere dar uma estrela no GitHub!
