@@ -1,6 +1,6 @@
 # Trackerly - Rastreador de Tempo para Projetos
 
-![Trackerly Logo](public/schedule.ico)
+<img src="public/schedule.ico" alt="Trackerly Logo" width="64" height="64" />
 
 ## 📝 Sobre o Projeto
 
