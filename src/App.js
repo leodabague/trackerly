@@ -125,18 +125,29 @@ const App = () => {
   const adicionarTarefa = () => {
     const horasTotal = novaTarefa.horas + (novaTarefa.minutos / 60);
     
-    // Ajustar a data para considerar o fuso horário local
-    const dataLocal = new Date(novaTarefa.data + 'T00:00:00');
-    const dia = dataLocal.getDate().toString().padStart(2, '0');
-    const mes = (dataLocal.getMonth() + 1).toString().padStart(2, '0');
-    const ano = dataLocal.getFullYear();
-    const dataAjustada = `${dia}/${mes}/${ano}`;
+    // Garantir que a data esteja no formato DD/MM/YYYY
+    let dataFormatada;
+    if (novaTarefa.data.includes('-')) {
+      // Se a data vier no formato YYYY-MM-DD
+      const [ano, mes, dia] = novaTarefa.data.split('-');
+      dataFormatada = `${dia}/${mes}/${ano}`;
+    } else if (novaTarefa.data.includes('/')) {
+      // Se já estiver no formato DD/MM/YYYY
+      dataFormatada = novaTarefa.data;
+    } else {
+      // Para outros formatos, converter para Date e depois formatar
+      const data = new Date(novaTarefa.data);
+      const dia = data.getDate().toString().padStart(2, '0');
+      const mes = (data.getMonth() + 1).toString().padStart(2, '0');
+      const ano = data.getFullYear();
+      dataFormatada = `${dia}/${mes}/${ano}`;
+    }
     
     const novaTarefaCompleta = {
       ...novaTarefa,
       id: Date.now(),
       horasTotal,
-      data: dataAjustada
+      data: dataFormatada
     };
     
     setTarefas([...tarefas, novaTarefaCompleta]);
@@ -415,19 +426,22 @@ const App = () => {
   const salvarEdicaoTarefa = () => {
     if (!tarefaEditando) return;
     
+    // Converter a data de YYYY-MM-DD para DD/MM/YYYY
+    const [ano, mes, dia] = tarefaEditando.data.split('-');
+    const dataFormatada = `${dia}/${mes}/${ano}`;
+    
     const tarefasAtualizadas = tarefas.map(tarefa => {
       if (tarefa.id === tarefaEditando.id) {
         return {
-          ...tarefa,
-          data: tarefaEditando.data,
-          cluster: tarefaEditando.cluster
+          ...tarefaEditando,
+          data: dataFormatada
         };
       }
       return tarefa;
     });
     
     setTarefas(tarefasAtualizadas);
-    localStorage.setItem('tarefas', JSON.stringify(tarefasAtualizadas));
+    localStorage.setItem('horasConsultoriaData', JSON.stringify({ tarefas: tarefasAtualizadas }));
     setShowEditModal(false);
     setTarefaEditando(null);
   };
