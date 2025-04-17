@@ -640,19 +640,26 @@ const App = () => {
             </div>
             
             <div className="space-y-3">
-              {clusters.map(cluster => (
-                <div key={cluster} className="flex items-center">
-                  <div className={`w-3 h-3 rounded-full mr-2 ${clusterColors[cluster]}`}></div>
-                  <span className={`flex-1 text-sm ${darkMode ? 'text-gray-300' : ''}`}>{cluster}</span>
-                  <span className="font-medium">{dadosGrafico[cluster]?.toFixed(1) || 0}h</span>
-                  <div className="ml-2 w-24 bg-gray-200 rounded-full h-2">
-                    <div 
-                      className={`h-2 rounded-full ${clusterColors[cluster]}`} 
-                      style={{ width: `${(dadosGrafico[cluster] || 0) / maxValor * 100}%` }}
-                    ></div>
+              {clusters.map(cluster => {
+                const horasCluster = dadosGrafico[cluster]?.toFixed(1) || 0;
+                const totalHoras = Object.values(dadosGrafico).reduce((acc, val) => acc + val, 0);
+                const porcentagem = totalHoras > 0 ? ((dadosGrafico[cluster] || 0) / totalHoras * 100).toFixed(1) : 0;
+                
+                return (
+                  <div key={cluster} className="flex items-center">
+                    <div className={`w-3 h-3 rounded-full mr-2 ${clusterColors[cluster]}`}></div>
+                    <span className={`flex-1 text-sm ${darkMode ? 'text-gray-300' : ''}`}>{cluster}</span>
+                    <span className="font-medium mr-2">{horasCluster}h</span>
+                    <span className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>({porcentagem}%)</span>
+                    <div className="ml-2 w-24 bg-gray-200 rounded-full h-2">
+                      <div 
+                        className={`h-2 rounded-full ${clusterColors[cluster]}`} 
+                        style={{ width: `${(dadosGrafico[cluster] || 0) / maxValor * 100}%` }}
+                      ></div>
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         </div>
