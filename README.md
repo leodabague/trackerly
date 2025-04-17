@@ -62,14 +62,10 @@ Contribuições são bem-vindas! Sinta-se à vontade para:
 - Sugerir novas funcionalidades
 - Enviar pull requests
 
-## 📄 Licença
-
-Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para mais detalhes.
-
 ## 👨‍💻 Autor
 
 **Leo Dabague**
-- GitHub: [@seu-usuario](https://github.com/leodabague)
+- GitHub: [@leodabague](https://github.com/leodabague)
 
 ---
 
