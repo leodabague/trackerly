@@ -740,6 +740,11 @@ const App = () => {
                 }
                 return false;
               })
+              .sort((a, b) => {
+                const dataA = converterDataParaDate(a.data);
+                const dataB = converterDataParaDate(b.data);
+                return dataB - dataA; // Ordem decrescente
+              })
               .slice(0, listaExpandida ? undefined : 5)
               .map((tarefa) => (
                 <div key={tarefa.id} className={`flex items-center justify-between p-4 ${darkMode ? 'bg-gray-700' : 'bg-white'} rounded-lg shadow mb-4`}>
