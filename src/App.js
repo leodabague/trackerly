@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Clock, FileText, Send, X, Plus, ChevronRight, ChevronLeft, Save, Download, Upload, Moon, Sun } from 'lucide-react';
+import { Clock, FileText, Send, X, Plus, ChevronRight, ChevronLeft, Save, Download, Upload, Moon, Sun, Settings } from 'lucide-react';
 
 const App = () => {
   // Estado para armazenar os dados
@@ -29,6 +29,12 @@ const App = () => {
   const [darkMode, setDarkMode] = useState(false);
   const [listaExpandida, setListaExpandida] = useState(false);
   const [isFlipped, setIsFlipped] = useState(false);
+  const [showConfigModal, setShowConfigModal] = useState(false);
+  const [configuracoes, setConfiguracoes] = useState({
+    horasMensais: 20,
+    horasSemanais: 5,
+    horasDiarias: 1
+  });
 
   // Cores dos clusters
   const clusterColors = {
@@ -108,18 +114,18 @@ const App = () => {
     // Definir horas disponíveis baseado na view
     switch(view) {
       case 'diario':
-        setHorasDisponiveis(1);
+        setHorasDisponiveis(configuracoes.horasDiarias);
         break;
       case 'semanal':
-        setHorasDisponiveis(5);
+        setHorasDisponiveis(configuracoes.horasSemanais);
         break;
       case 'mensal':
-        setHorasDisponiveis(20);
+        setHorasDisponiveis(configuracoes.horasMensais);
         break;
       default:
         setHorasDisponiveis(1);
     }
-  }, [view]); // Este efeito roda quando a view muda
+  }, [view, configuracoes]); // Este efeito roda quando a view muda
 
   // Função para adicionar uma nova tarefa
   const adicionarTarefa = () => {
@@ -275,7 +281,8 @@ const App = () => {
         tarefas,
         clusters,
         horasDisponiveis,
-        email
+        email,
+        configuracoes
       };
       
       localStorage.setItem('horasConsultoriaData', JSON.stringify(dadosParaSalvar));
@@ -319,6 +326,7 @@ const App = () => {
         if (dados.clusters) setClusters(dados.clusters);
         if (dados.horasDisponiveis) setHorasDisponiveis(dados.horasDisponiveis);
         if (dados.email) setEmail(dados.email);
+        if (dados.configuracoes) setConfiguracoes(dados.configuracoes);
         
         setStatusSalvamento('Dados carregados com sucesso!');
         
@@ -340,6 +348,7 @@ const App = () => {
         clusters,
         horasDisponiveis,
         email,
+        configuracoes,
         dataExportacao: new Date().toISOString()
       };
       
@@ -384,6 +393,7 @@ const App = () => {
             if (dados.clusters) setClusters(dados.clusters);
             if (dados.horasDisponiveis) setHorasDisponiveis(dados.horasDisponiveis);
             if (dados.email) setEmail(dados.email);
+            if (dados.configuracoes) setConfiguracoes(dados.configuracoes);
             
             setStatusSalvamento('Dados importados com sucesso!');
             
@@ -461,7 +471,7 @@ const App = () => {
     
     return {
       projecaoTotal: projecaoTotal.toFixed(1),
-      diferenca: (projecaoTotal - 20).toFixed(1), // 20 horas é o limite mensal
+      diferenca: (projecaoTotal - configuracoes.horasMensais).toFixed(1),
       diasRestantes,
       diaAtual,
       ultimoDiaMes
@@ -490,7 +500,7 @@ const App = () => {
             <button 
               onClick={() => {
                 setView('diario');
-                setHorasDisponiveis(1); // 1 hora por dia
+                setHorasDisponiveis(configuracoes.horasDiarias);
               }} 
               className={`px-3 py-1 rounded ${view === 'diario' 
                 ? 'bg-blue-500 text-white' 
@@ -501,7 +511,7 @@ const App = () => {
             <button 
               onClick={() => {
                 setView('semanal');
-                setHorasDisponiveis(5); // 5 horas por semana
+                setHorasDisponiveis(configuracoes.horasSemanais);
               }} 
               className={`px-3 py-1 rounded ${view === 'semanal' 
                 ? 'bg-blue-500 text-white' 
@@ -512,7 +522,7 @@ const App = () => {
             <button 
               onClick={() => {
                 setView('mensal');
-                setHorasDisponiveis(20); // 20 horas por mês
+                setHorasDisponiveis(configuracoes.horasMensais);
               }} 
               className={`px-3 py-1 rounded ${view === 'mensal' 
                 ? 'bg-blue-500 text-white' 
@@ -846,6 +856,14 @@ const App = () => {
             <FileText size={16} />
             Gerar Relatório Mensal
           </button>
+
+          <button 
+            onClick={() => setShowConfigModal(true)}
+            className="px-4 py-2 bg-gray-500 text-white rounded-md flex items-center gap-2"
+          >
+            <Settings size={16} />
+            Configurações
+          </button>
         </div>
         
         {/* Mensagem de Status */}
@@ -1136,6 +1154,77 @@ const App = () => {
                   className="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md"
                 >
                   Salvar
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Modal de Configurações */}
+        {showConfigModal && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className={`${darkMode ? 'bg-gray-800' : 'bg-white'} rounded-lg p-6 w-full max-w-md`}>
+              <div className="flex justify-between items-center mb-4">
+                <h3 className={`text-lg font-medium ${darkMode ? 'text-gray-100' : 'text-gray-900'}`}>Configurações</h3>
+                <button onClick={() => setShowConfigModal(false)} className={`${darkMode ? 'text-gray-400 hover:text-gray-300' : 'text-gray-400 hover:text-gray-600'}`}>
+                  <X size={20} />
+                </button>
+              </div>
+              
+              <div className="space-y-4">
+                <div>
+                  <label className={`block text-sm font-medium ${darkMode ? 'text-gray-300' : 'text-gray-700'} mb-1`}>Horas Mensais</label>
+                  <input
+                    type="number"
+                    min="1"
+                    value={configuracoes.horasMensais}
+                    onChange={(e) => setConfiguracoes({...configuracoes, horasMensais: parseInt(e.target.value) || 1})}
+                    className={`w-full p-2 border rounded-md ${
+                      darkMode 
+                        ? 'bg-gray-700 border-gray-600 text-gray-100' 
+                        : 'bg-white border-gray-300 text-gray-900'
+                    }`}
+                  />
+                </div>
+                
+                <div>
+                  <label className={`block text-sm font-medium ${darkMode ? 'text-gray-300' : 'text-gray-700'} mb-1`}>Horas Semanais</label>
+                  <input
+                    type="number"
+                    min="1"
+                    value={configuracoes.horasSemanais}
+                    onChange={(e) => setConfiguracoes({...configuracoes, horasSemanais: parseInt(e.target.value) || 1})}
+                    className={`w-full p-2 border rounded-md ${
+                      darkMode 
+                        ? 'bg-gray-700 border-gray-600 text-gray-100' 
+                        : 'bg-white border-gray-300 text-gray-900'
+                    }`}
+                  />
+                </div>
+                
+                <div>
+                  <label className={`block text-sm font-medium ${darkMode ? 'text-gray-300' : 'text-gray-700'} mb-1`}>Horas Diárias</label>
+                  <input
+                    type="number"
+                    min="1"
+                    value={configuracoes.horasDiarias}
+                    onChange={(e) => setConfiguracoes({...configuracoes, horasDiarias: parseInt(e.target.value) || 1})}
+                    className={`w-full p-2 border rounded-md ${
+                      darkMode 
+                        ? 'bg-gray-700 border-gray-600 text-gray-100' 
+                        : 'bg-white border-gray-300 text-gray-900'
+                    }`}
+                  />
+                </div>
+                
+                <button
+                  onClick={() => {
+                    setShowConfigModal(false);
+                    salvarDados();
+                  }}
+                  className="w-full py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+                >
+                  Salvar Configurações
                 </button>
               </div>
             </div>
