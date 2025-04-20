@@ -495,8 +495,8 @@ const App = () => {
         </header>
         
         {/* Navegação e Seleção de Visualização */}
-        <div className={`flex justify-between items-center mb-6 ${darkMode ? 'bg-gray-800' : 'bg-white'} p-4 rounded-lg shadow-sm`}>
-          <div className="flex gap-2">
+        <div className={`flex flex-col sm:flex-row justify-between items-center mb-6 ${darkMode ? 'bg-gray-800' : 'bg-white'} p-4 rounded-lg shadow-sm gap-4`}>
+          <div className="flex gap-2 w-full sm:w-auto justify-center">
             <button 
               onClick={() => {
                 setView('diario');
@@ -532,11 +532,11 @@ const App = () => {
             </button>
           </div>
           
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 w-full sm:w-auto justify-center">
             <button onClick={() => navegarData(-1)} className={`p-1 rounded ${darkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-200'}`}>
               <ChevronLeft size={20} />
             </button>
-            <span className="font-medium">{formatarPeriodo()}</span>
+            <span className="font-medium min-w-[120px] text-center">{formatarPeriodo()}</span>
             <button onClick={() => navegarData(1)} className={`p-1 rounded ${darkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-200'}`}>
               <ChevronRight size={20} />
             </button>
@@ -544,8 +544,8 @@ const App = () => {
         </div>
         
         {/* Resumo de Horas */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-          <div className="h-full perspective-1000">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+          <div className="h-full min-h-[200px] perspective-1000">
             <div 
               className={`relative w-full h-full transition-transform duration-500 transform-style-preserve-3d ${
                 isFlipped ? 'rotate-y-180' : ''
@@ -658,7 +658,7 @@ const App = () => {
             </div>
           </div>
           
-          <div className={`${darkMode ? 'bg-gray-800' : 'bg-white'} p-6 rounded-lg shadow-sm`}>
+          <div className={`${darkMode ? 'bg-gray-800' : 'bg-white'} p-6 rounded-lg shadow-sm min-h-[200px]`}>
             <div className="flex justify-between items-center mb-4">
               <h3 className="font-medium">Distribuição por Cluster</h3>
             </div>
@@ -670,16 +670,20 @@ const App = () => {
                 const porcentagem = totalHoras > 0 ? ((dadosGrafico[cluster] || 0) / totalHoras * 100).toFixed(1) : 0;
                 
                 return (
-                  <div key={cluster} className="flex items-center">
-                    <div className={`w-3 h-3 rounded-full mr-2 ${clusterColors[cluster]}`}></div>
-                    <span className={`flex-1 text-sm ${darkMode ? 'text-gray-300' : ''}`}>{cluster}</span>
-                    <span className="font-medium mr-2">{horasCluster}h</span>
-                    <span className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>({porcentagem}%)</span>
-                    <div className="ml-2 w-24 bg-gray-200 rounded-full h-2">
-                      <div 
-                        className={`h-2 rounded-full ${clusterColors[cluster]}`} 
-                        style={{ width: `${(dadosGrafico[cluster] || 0) / maxValor * 100}%` }}
-                      ></div>
+                  <div key={cluster} className="flex items-center flex-wrap gap-2">
+                    <div className="flex items-center min-w-[150px] flex-1">
+                      <div className={`w-3 h-3 rounded-full mr-2 ${clusterColors[cluster]}`}></div>
+                      <span className={`text-sm ${darkMode ? 'text-gray-300' : ''}`}>{cluster}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="font-medium mr-2">{horasCluster}h</span>
+                      <span className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>({porcentagem}%)</span>
+                      <div className="w-24 bg-gray-200 rounded-full h-2">
+                        <div 
+                          className={`h-2 rounded-full ${clusterColors[cluster]}`} 
+                          style={{ width: `${(dadosGrafico[cluster] || 0) / maxValor * 100}%` }}
+                        ></div>
+                      </div>
                     </div>
                   </div>
                 );
@@ -835,7 +839,7 @@ const App = () => {
         <div className="flex flex-wrap justify-center gap-4 mb-8">
           <button 
             onClick={salvarDados}
-            className="px-4 py-2 bg-green-500 text-white rounded-md flex items-center gap-2"
+            className="px-4 py-2 bg-green-500 text-white rounded-md flex items-center gap-2 w-full sm:w-auto justify-center"
           >
             <Save size={16} />
             Salvar Dados
@@ -843,7 +847,7 @@ const App = () => {
           
           <button 
             onClick={() => setShowExportModal(true)}
-            className="px-4 py-2 bg-purple-500 text-white rounded-md flex items-center gap-2"
+            className="px-4 py-2 bg-purple-500 text-white rounded-md flex items-center gap-2 w-full sm:w-auto justify-center"
           >
             <Download size={16} />
             Exportar/Importar
@@ -851,7 +855,7 @@ const App = () => {
           
           <button 
             onClick={() => setShowEmailModal(true)}
-            className="px-4 py-2 bg-blue-500 text-white rounded-md flex items-center gap-2"
+            className="px-4 py-2 bg-blue-500 text-white rounded-md flex items-center gap-2 w-full sm:w-auto justify-center"
           >
             <FileText size={16} />
             Gerar Relatório Mensal
@@ -859,7 +863,7 @@ const App = () => {
 
           <button 
             onClick={() => setShowConfigModal(true)}
-            className="px-4 py-2 bg-gray-500 text-white rounded-md flex items-center gap-2"
+            className="px-4 py-2 bg-gray-500 text-white rounded-md flex items-center gap-2 w-full sm:w-auto justify-center"
           >
             <Settings size={16} />
             Configurações
