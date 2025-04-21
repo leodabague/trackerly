@@ -932,6 +932,30 @@ const App = () => {
                           : 'bg-white border-gray-300 text-gray-900'
                       }`}
                     />
+                    <div className="flex gap-2 mt-2">
+                      <button
+                        type="button"
+                        onClick={() => setNovaTarefa({...novaTarefa, horas: Math.max(0, novaTarefa.horas - 1)})}
+                        className={`flex-1 py-1 px-2 rounded-md text-sm ${
+                          darkMode
+                            ? 'bg-gray-700 hover:bg-gray-600 text-gray-200'
+                            : 'bg-gray-200 hover:bg-gray-300 text-gray-700'
+                        }`}
+                      >
+                        -1h
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setNovaTarefa({...novaTarefa, horas: novaTarefa.horas + 1})}
+                        className={`flex-1 py-1 px-2 rounded-md text-sm ${
+                          darkMode
+                            ? 'bg-gray-700 hover:bg-gray-600 text-gray-200'
+                            : 'bg-gray-200 hover:bg-gray-300 text-gray-700'
+                        }`}
+                      >
+                        +1h
+                      </button>
+                    </div>
                   </div>
                   
                   <div>
@@ -948,6 +972,41 @@ const App = () => {
                           : 'bg-white border-gray-300 text-gray-900'
                       }`}
                     />
+                    <div className="flex gap-2 mt-2">
+                      <button
+                        type="button"
+                        onClick={() => setNovaTarefa({...novaTarefa, minutos: Math.min(59, novaTarefa.minutos + 10)})}
+                        className={`flex-1 py-1 px-2 rounded-md text-sm ${
+                          darkMode
+                            ? 'bg-gray-700 hover:bg-gray-600 text-gray-200'
+                            : 'bg-gray-200 hover:bg-gray-300 text-gray-700'
+                        }`}
+                      >
+                        +10m
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setNovaTarefa({...novaTarefa, minutos: Math.min(59, novaTarefa.minutos + 20)})}
+                        className={`flex-1 py-1 px-2 rounded-md text-sm ${
+                          darkMode
+                            ? 'bg-gray-700 hover:bg-gray-600 text-gray-200'
+                            : 'bg-gray-200 hover:bg-gray-300 text-gray-700'
+                        }`}
+                      >
+                        +20m
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setNovaTarefa({...novaTarefa, minutos: Math.min(59, novaTarefa.minutos + 30)})}
+                        className={`flex-1 py-1 px-2 rounded-md text-sm ${
+                          darkMode
+                            ? 'bg-gray-700 hover:bg-gray-600 text-gray-200'
+                            : 'bg-gray-200 hover:bg-gray-300 text-gray-700'
+                        }`}
+                      >
+                        +30m
+                      </button>
+                    </div>
                   </div>
                 </div>
                 
@@ -973,7 +1032,9 @@ const App = () => {
                   disabled={!novaTarefa.nome}
                   className={`w-full py-2 rounded-md transition-colors duration-200 ${
                     !novaTarefa.nome 
-                      ? 'bg-gray-300 cursor-not-allowed text-gray-500'
+                      ? darkMode
+                        ? 'bg-gray-700 cursor-not-allowed text-gray-400'
+                        : 'bg-gray-300 cursor-not-allowed text-gray-500'
                       : darkMode
                         ? 'bg-blue-600 hover:bg-blue-700 text-white'
                         : 'bg-blue-500 hover:bg-blue-600 text-white'
@@ -989,22 +1050,26 @@ const App = () => {
         {/* Modal de Email para Relatório */}
         {showEmailModal && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white rounded-lg p-6 w-full max-w-md">
+            <div className={`${darkMode ? 'bg-gray-800' : 'bg-white'} rounded-lg p-6 w-full max-w-md`}>
               <div className="flex justify-between items-center mb-4">
-                <h3 className="text-lg font-medium">Enviar Relatório Mensal</h3>
-                <button onClick={() => setShowEmailModal(false)} className="text-gray-400 hover:text-gray-600">
+                <h3 className={`text-lg font-medium ${darkMode ? 'text-gray-100' : 'text-gray-900'}`}>Enviar Relatório Mensal</h3>
+                <button onClick={() => setShowEmailModal(false)} className={`${darkMode ? 'text-gray-400 hover:text-gray-300' : 'text-gray-400 hover:text-gray-600'}`}>
                   <X size={20} />
                 </button>
               </div>
               
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                  <label className={`block text-sm font-medium ${darkMode ? 'text-gray-300' : 'text-gray-700'} mb-1`}>Email</label>
                   <input
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="w-full p-2 border border-gray-300 rounded-md"
+                    className={`w-full p-2 border rounded-md ${
+                      darkMode 
+                        ? 'bg-gray-700 border-gray-600 text-gray-100 placeholder-gray-400' 
+                        : 'bg-white border-gray-300 text-gray-900 placeholder-gray-400'
+                    }`}
                     placeholder="seu@email.com"
                   />
                 </div>
@@ -1013,7 +1078,13 @@ const App = () => {
                   <button
                     onClick={gerarRelatorio}
                     disabled={!email.includes('@')}
-                    className={`w-full py-2 rounded-md flex items-center justify-center gap-2 ${!email.includes('@') ? 'bg-gray-300 cursor-not-allowed' : 'bg-blue-500 text-white'}`}
+                    className={`w-full py-2 rounded-md flex items-center justify-center gap-2 ${
+                      !email.includes('@') 
+                        ? 'bg-gray-300 cursor-not-allowed' 
+                        : darkMode
+                          ? 'bg-blue-600 hover:bg-blue-700 text-white'
+                          : 'bg-blue-500 hover:bg-blue-600 text-white'
+                    }`}
                   >
                     <Send size={16} />
                     Enviar Relatório
@@ -1027,32 +1098,40 @@ const App = () => {
         {/* Modal de Exportar/Importar */}
         {showExportModal && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white rounded-lg p-6 w-full max-w-md">
+            <div className={`${darkMode ? 'bg-gray-800' : 'bg-white'} rounded-lg p-6 w-full max-w-md`}>
               <div className="flex justify-between items-center mb-4">
-                <h3 className="text-lg font-medium">Exportar/Importar Dados</h3>
-                <button onClick={() => setShowExportModal(false)} className="text-gray-400 hover:text-gray-600">
+                <h3 className={`text-lg font-medium ${darkMode ? 'text-gray-100' : 'text-gray-900'}`}>Exportar/Importar Dados</h3>
+                <button onClick={() => setShowExportModal(false)} className={`${darkMode ? 'text-gray-400 hover:text-gray-300' : 'text-gray-400 hover:text-gray-600'}`}>
                   <X size={20} />
                 </button>
               </div>
               
               <div className="space-y-6">
                 <div>
-                  <h4 className="text-md font-medium mb-2">Exportar Dados</h4>
+                  <h4 className={`text-md font-medium mb-2 ${darkMode ? 'text-gray-200' : 'text-gray-900'}`}>Exportar Dados</h4>
                   <div className="space-y-3">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Nome do Arquivo</label>
+                      <label className={`block text-sm font-medium ${darkMode ? 'text-gray-300' : 'text-gray-700'} mb-1`}>Nome do Arquivo</label>
                       <input
                         type="text"
                         value={nomeArquivo}
                         onChange={(e) => setNomeArquivo(e.target.value)}
-                        className="w-full p-2 border border-gray-300 rounded-md"
+                        className={`w-full p-2 border rounded-md ${
+                          darkMode 
+                            ? 'bg-gray-700 border-gray-600 text-gray-100 placeholder-gray-400' 
+                            : 'bg-white border-gray-300 text-gray-900 placeholder-gray-400'
+                        }`}
                         placeholder="horas-consultoria-dados.json"
                       />
                     </div>
                     
                     <button
                       onClick={exportarDados}
-                      className="w-full py-2 bg-purple-500 text-white rounded-md flex items-center justify-center gap-2"
+                      className={`w-full py-2 rounded-md flex items-center justify-center gap-2 ${
+                        darkMode
+                          ? 'bg-purple-600 hover:bg-purple-700 text-white'
+                          : 'bg-purple-500 hover:bg-purple-600 text-white'
+                      }`}
                     >
                       <Download size={16} />
                       Exportar Dados
@@ -1060,12 +1139,16 @@ const App = () => {
                   </div>
                 </div>
                 
-                <div className="border-t pt-4">
-                  <h4 className="text-md font-medium mb-2">Importar Dados</h4>
+                <div className={`border-t ${darkMode ? 'border-gray-700' : 'border-gray-200'} pt-4`}>
+                  <h4 className={`text-md font-medium mb-2 ${darkMode ? 'text-gray-200' : 'text-gray-900'}`}>Importar Dados</h4>
                   <div className="space-y-2">
-                    <p className="text-sm text-gray-600">Selecione um arquivo JSON exportado anteriormente:</p>
+                    <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>Selecione um arquivo JSON exportado anteriormente:</p>
                     
-                    <label className="block w-full py-2 bg-gray-100 text-center rounded-md cursor-pointer border border-gray-300 hover:bg-gray-200">
+                    <label className={`block w-full py-2 text-center rounded-md cursor-pointer border ${
+                      darkMode 
+                        ? 'bg-gray-700 border-gray-600 hover:bg-gray-600 text-gray-200' 
+                        : 'bg-gray-100 border-gray-300 hover:bg-gray-200 text-gray-700'
+                    }`}>
                       <Upload size={16} className="inline-block mr-2" />
                       Selecionar Arquivo
                       <input
