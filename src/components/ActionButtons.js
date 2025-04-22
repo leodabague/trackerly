@@ -3,8 +3,8 @@ import { Save, Download, FileText, Settings, X, Upload } from 'lucide-react';
 import { useTaskContext } from '../contexts/TaskContext';
 import html2pdf from 'html2pdf.js';
 
-const ActionButtons = ({ darkMode }) => {
-  const { tarefas, clusters, configuracoes, setConfiguracoes } = useTaskContext();
+const ActionButtons = ({ darkMode, resetFiltros }) => {
+  const { tarefas, clusters, configuracoes, setConfiguracoes, setAllData } = useTaskContext();
   const [showExportModal, setShowExportModal] = useState(false);
   const [showConfigModal, setShowConfigModal] = useState(false);
   const [showEmailModal, setShowEmailModal] = useState(false);
@@ -85,14 +85,24 @@ const ActionButtons = ({ darkMode }) => {
             const dados = JSON.parse(conteudo);
             
             if (dados.tarefas) {
-              // Atualizar tarefas no contexto
-              // Isso requer uma função no contexto para atualizar as tarefas
-              // Vamos usar localStorage como alternativa
-              localStorage.setItem('horasConsultoriaData', JSON.stringify(dados));
-              window.location.reload(); // Recarregar para aplicar as mudanças
+              // Usar a função setAllData para atualizar o contexto diretamente
+              const resultado = setAllData(dados);
+              
+              if (resultado) {
+                setStatusSalvamento('Dados importados com sucesso!');
+                // Fechar o modal após importação bem-sucedida
+                setShowExportModal(false);
+                
+                // Resetar os filtros para garantir que a visualização seja atualizada
+                if (resetFiltros) {
+                  resetFiltros();
+                }
+              } else {
+                setStatusSalvamento('Erro ao importar dados: formato inválido.');
+              }
+            } else {
+              setStatusSalvamento('Erro ao importar dados: formato inválido.');
             }
-            
-            setStatusSalvamento('Dados importados com sucesso!');
             
             // Limpar a mensagem após 3 segundos
             setTimeout(() => {

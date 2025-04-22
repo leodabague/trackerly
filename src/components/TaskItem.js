@@ -4,12 +4,87 @@ import { useTaskContext } from '../contexts/TaskContext';
 const TaskItem = ({ tarefa, darkMode, onEdit, onDelete }) => {
   const { clusters } = useTaskContext();
 
-  const clusterColors = {
+  // Lista predefinida de cores para clusters
+  const defaultClusterColors = {
     'Desenvolvimento': 'bg-blue-500',
     'Reuniões': 'bg-green-500',
     'Pesquisa': 'bg-purple-500',
     'Documentação': 'bg-yellow-500'
   };
+
+  // Cores alternativas para clusters personalizados
+  const alternativeColors = [
+    'bg-pink-500',
+    'bg-indigo-500',
+    'bg-red-500',
+    'bg-cyan-500',
+    'bg-amber-500',
+    'bg-lime-500',
+    'bg-teal-500',
+    'bg-fuchsia-500'
+  ];
+
+  // Função para obter a cor do cluster, mesmo para clusters personalizados
+  const getClusterColor = (clusterName) => {
+    // Se o cluster estiver na lista predefinida, use a cor correspondente
+    if (defaultClusterColors[clusterName]) {
+      return defaultClusterColors[clusterName];
+    }
+    
+    // Se não, gere uma cor com base no nome do cluster
+    const clusterIndex = clusters.indexOf(clusterName);
+    if (clusterIndex !== -1) {
+      return alternativeColors[clusterIndex % alternativeColors.length];
+    }
+    
+    // Fallback para uma cor padrão
+    return 'bg-gray-500';
+  };
+
+  // Função para formatar a data no padrão DD/MM/YYYY
+  const formatarData = (dataString) => {
+    try {
+      const data = new Date(dataString);
+      
+      // Verificar se é uma data válida
+      if (isNaN(data.getTime())) {
+        console.warn("Data inválida:", dataString);
+        return dataString;
+      }
+      
+      // Formatar para o padrão brasileiro DD/MM/YYYY
+      return data.toLocaleDateString('pt-BR');
+    } catch (error) {
+      console.error("Erro ao formatar data:", error);
+      return dataString;
+    }
+  };
+
+  // Função para formatar a duração da tarefa
+  const formatarDuracao = (tarefa) => {
+    try {
+      // Se a tarefa tem propriedades separadas de horas e minutos
+      if (typeof tarefa.horas === 'number' && !isNaN(tarefa.horas)) {
+        const horas = tarefa.horas;
+        const minutos = typeof tarefa.minutos === 'number' && !isNaN(tarefa.minutos) ? tarefa.minutos : 0;
+        return `${horas}h ${minutos}m`;
+      } 
+      // Se a tarefa tem apenas horasTotal (provavelmente importada)
+      else if (typeof tarefa.horasTotal === 'number' && !isNaN(tarefa.horasTotal)) {
+        const horasInteiras = Math.floor(tarefa.horasTotal);
+        const minutos = Math.round((tarefa.horasTotal - horasInteiras) * 60);
+        return `${horasInteiras}h ${minutos}m`;
+      }
+      // Fallback
+      return "Duração desconhecida";
+    } catch (error) {
+      console.error("Erro ao formatar duração:", error);
+      return "Erro na duração";
+    }
+  };
+
+  // Obter a cor para o cluster da tarefa atual
+  const clusterColor = getClusterColor(tarefa.cluster);
 
   return (
     <div className={`flex items-center justify-between p-4 ${darkMode ? 'bg-gray-700' : 'bg-white'} rounded-lg shadow mb-4`}>
@@ -19,13 +94,13 @@ const TaskItem = ({ tarefa, darkMode, onEdit, onDelete }) => {
         </h3>
         <div className="flex items-center gap-2 mt-1">
           <span className={`text-sm ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
-            {tarefa.data}
+            {formatarData(tarefa.data)}
           </span>
-          <span className={`px-2 py-1 text-xs font-medium rounded-full ${clusterColors[tarefa.cluster]} bg-opacity-20 text-${clusterColors[tarefa.cluster].replace('bg-', '')}`}>
+          <span className={`px-2 py-1 text-xs font-medium rounded-full ${clusterColor} bg-opacity-20 text-${clusterColor.replace('bg-', '')}`}>
             {tarefa.cluster}
           </span>
           <span className={`text-sm ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
-            {tarefa.horas}h {tarefa.minutos}m
+            {formatarDuracao(tarefa)}
           </span>
         </div>
       </div>

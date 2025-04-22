@@ -1,15 +1,38 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { useTaskContext } from '../contexts/TaskContext';
 
 export const useTaskFilters = () => {
   const { tarefas, configuracoes } = useTaskContext();
   const [view, setView] = useState('diario');
   const [dataSelecionada, setDataSelecionada] = useState(new Date());
-  const [weekStart, setWeekStart] = useState(new Date());
+  const [weekStart, setWeekStart] = useState(getStartOfWeek(new Date()));
   const [monthStart, setMonthStart] = useState(new Date(new Date().getFullYear(), new Date().getMonth(), 1));
+  const [forceUpdate, setForceUpdate] = useState(0);
+
+  // Função para obter o primeiro dia da semana atual
+  function getStartOfWeek(date) {
+    const newDate = new Date(date);
+    const day = newDate.getDay();
+    const diff = newDate.getDate() - day + (day === 0 ? -6 : 1); // Ajuste para semana começando na segunda-feira
+    return new Date(newDate.setDate(diff));
+  }
+  
+  // Forçar atualização quando as tarefas mudarem
+  useEffect(() => {
+    // Só atualiza se houver tarefas para evitar re-renderizações desnecessárias no carregamento inicial
+    if (tarefas.length > 0) {
+      setForceUpdate(prev => prev + 1);
+    }
+  }, [tarefas]);
 
   const calcularHorasUsadas = useCallback(() => {
     let total = 0;
+    
+    // Verificar se há tarefas
+    if (!tarefas || !Array.isArray(tarefas) || tarefas.length === 0) {
+      return 0;
+    }
+    
     const hoje = new Date(dataSelecionada);
     hoje.setHours(0, 0, 0, 0);
     
@@ -24,24 +47,45 @@ export const useTaskFilters = () => {
     const fimMes = new Date(monthStart.getFullYear(), monthStart.getMonth() + 1, 0, 23, 59, 59, 999);
     
     const tarefasFiltradas = tarefas.filter(tarefa => {
-      const dataTarefa = new Date(tarefa.data);
-      dataTarefa.setHours(0, 0, 0, 0);
-      
-      if (view === 'diario') {
-        return dataTarefa.getTime() === hoje.getTime();
-      } else if (view === 'semanal') {
-        return dataTarefa >= inicioSemana && dataTarefa <= fimSemana;
-      } else if (view === 'mensal') {
-        return dataTarefa >= inicioMes && dataTarefa <= fimMes;
+      // Garantir que a tarefa tenha uma data válida
+      if (!tarefa.data) {
+        return false;
       }
+      
+      try {
+        // Converter a data da tarefa para objeto Date
+        const dataTarefa = new Date(tarefa.data);
+        
+        // Verificar se é uma data válida
+        if (isNaN(dataTarefa.getTime())) {
+          return false;
+        }
+        
+        // Normalizar a data (remover as horas, minutos, segundos)
+        dataTarefa.setHours(0, 0, 0, 0);
+        
+        if (view === 'diario') {
+          return dataTarefa.getTime() === hoje.getTime();
+        } else if (view === 'semanal') {
+          return dataTarefa >= inicioSemana && dataTarefa <= fimSemana;
+        } else if (view === 'mensal') {
+          // Comparar apenas mês e ano para mais confiabilidade
+          return dataTarefa.getMonth() === monthStart.getMonth() &&
+                 dataTarefa.getFullYear() === monthStart.getFullYear();
+        }
+      } catch (error) {
+        console.error('Erro ao processar data da tarefa em calcularHorasUsadas:', error, tarefa);
+        return false;
+      }
+      
       return false;
     });
     
     total = tarefasFiltradas.reduce((acc, tarefa) => acc + tarefa.horasTotal, 0);
     return total;
-  }, [dataSelecionada, weekStart, monthStart, tarefas, view]);
+  }, [dataSelecionada, weekStart, monthStart, tarefas, view, forceUpdate]);
 
-  const getHorasDisponiveis = () => {
+  const getHorasDisponiveis = useCallback(() => {
     switch(view) {
       case 'diario':
         return configuracoes.horasDiarias;
@@ -52,7 +96,7 @@ export const useTaskFilters = () => {
       default:
         return 1;
     }
-  };
+  }, [configuracoes, view, forceUpdate]);
 
   const navegarData = (direcao) => {
     if (view === 'diario') {
@@ -81,6 +125,15 @@ export const useTaskFilters = () => {
       return monthStart.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
     }
   };
+  
+  // Função para redefinir filtros para o período atual
+  const resetFiltros = () => {
+    const hoje = new Date();
+    setDataSelecionada(hoje);
+    setWeekStart(getStartOfWeek(hoje));
+    setMonthStart(new Date(hoje.getFullYear(), hoje.getMonth(), 1));
+    setForceUpdate(prev => prev + 1);
+  };
 
   return {
     view,
@@ -91,6 +144,7 @@ export const useTaskFilters = () => {
     horasUsadas: calcularHorasUsadas(),
     horasDisponiveis: getHorasDisponiveis(),
     navegarData,
-    formatarPeriodo
+    formatarPeriodo,
+    resetFiltros
   };
 }; 

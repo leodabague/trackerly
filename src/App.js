@@ -19,7 +19,8 @@ const AppContent = () => {
     horasUsadas,
     horasDisponiveis,
     navegarData,
-    formatarPeriodo
+    formatarPeriodo,
+    resetFiltros
   } = useTaskFilters();
 
   return (
@@ -41,9 +42,15 @@ const AppContent = () => {
           horasUsadas={horasUsadas}
           horasDisponiveis={horasDisponiveis}
           view={view}
+          dataSelecionada={dataSelecionada}
+          weekStart={weekStart}
+          monthStart={monthStart}
         />
         
-        <ActionButtons darkMode={darkMode} />
+        <ActionButtons 
+          darkMode={darkMode} 
+          resetFiltros={resetFiltros}
+        />
         
         <TaskList
           darkMode={darkMode}
