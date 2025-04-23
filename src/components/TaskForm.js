@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 import { useTaskContext } from '../contexts/TaskContext';
 
-const TaskForm = ({ onClose, darkMode }) => {
-  const { adicionarTarefa, clusters } = useTaskContext();
+const TaskForm = ({ onClose, darkMode, tarefaEditando }) => {
+  const { adicionarTarefa, editarTarefa, clusters } = useTaskContext();
   const [novaTarefa, setNovaTarefa] = useState({
     nome: '',
     data: new Date().toISOString().split('T')[0],
@@ -12,9 +12,43 @@ const TaskForm = ({ onClose, darkMode }) => {
     cluster: 'Desenvolvimento'
   });
 
+  // Efeito para carregar dados da tarefa sendo editada
+  useEffect(() => {
+    if (tarefaEditando) {
+      // Converter a data do formato DD/MM/YYYY para YYYY-MM-DD para o input date
+      let dataFormatada = tarefaEditando.data;
+      if (typeof tarefaEditando.data === 'string' && /^\d{2}\/\d{2}\/\d{4}$/.test(tarefaEditando.data)) {
+        const [dia, mes, ano] = tarefaEditando.data.split('/');
+        dataFormatada = `${ano}-${mes}-${dia}`;
+      }
+
+      setNovaTarefa({
+        ...tarefaEditando,
+        data: dataFormatada
+      });
+    }
+  }, [tarefaEditando]);
+
   const handleSubmit = (e) => {
     e.preventDefault();
-    adicionarTarefa(novaTarefa);
+    
+    // Calcular o horasTotal
+    const horasTotal = novaTarefa.horas + (novaTarefa.minutos / 60);
+    
+    // Se estiver editando uma tarefa existente
+    if (tarefaEditando) {
+      editarTarefa({
+        ...novaTarefa,
+        horasTotal
+      });
+    } else {
+      // Se estiver adicionando uma nova tarefa
+      adicionarTarefa({
+        ...novaTarefa,
+        horasTotal
+      });
+    }
+    
     onClose();
   };
 
@@ -34,7 +68,7 @@ const TaskForm = ({ onClose, darkMode }) => {
     <div className={`${darkMode ? 'bg-gray-800' : 'bg-white'} rounded-lg p-6 w-full max-w-md`}>
       <div className="flex justify-between items-center mb-4">
         <h3 className={`text-lg font-medium ${darkMode ? 'text-gray-100' : 'text-gray-900'}`}>
-          Adicionar Nova Tarefa
+          {tarefaEditando ? 'Editar Tarefa' : 'Adicionar Nova Tarefa'}
         </h3>
         <button 
           onClick={onClose} 
@@ -206,7 +240,7 @@ const TaskForm = ({ onClose, darkMode }) => {
               : 'bg-blue-500 hover:bg-blue-600 text-white'
           }`}
         >
-          Adicionar Tarefa
+          {tarefaEditando ? 'Salvar Alterações' : 'Adicionar Tarefa'}
         </button>
       </form>
     </div>

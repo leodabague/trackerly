@@ -34,11 +34,31 @@ export const TaskProvider = ({ children }) => {
 
   const adicionarTarefa = (novaTarefa) => {
     const horasTotal = novaTarefa.horas + (novaTarefa.minutos / 60);
+    
+    // Processar a data para garantir o formato correto
+    let dataProcessada = novaTarefa.data;
+    let dataObj = null;
+    
+    // Se for uma string de data no formato ISO (YYYY-MM-DD de input type=date)
+    if (typeof novaTarefa.data === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(novaTarefa.data)) {
+      // Criar objeto Date corretamente usando esse formato
+      dataObj = new Date(novaTarefa.data + 'T00:00:00');
+      
+      // Formatar para o padrão DD/MM/YYYY para exibição e armazenamento
+      const dia = String(dataObj.getDate()).padStart(2, '0');
+      const mes = String(dataObj.getMonth() + 1).padStart(2, '0');
+      const ano = dataObj.getFullYear();
+      dataProcessada = `${dia}/${mes}/${ano}`;
+    }
+    
     const tarefaCompleta = {
       ...novaTarefa,
       id: Date.now(),
+      data: dataProcessada,
+      _dataObj: dataObj,
       horasTotal
     };
+    
     setTarefas([...tarefas, tarefaCompleta]);
   };
 
@@ -47,8 +67,28 @@ export const TaskProvider = ({ children }) => {
   };
 
   const editarTarefa = (tarefaEditada) => {
+    // Processar a data para garantir o formato correto
+    let dataProcessada = tarefaEditada.data;
+    let dataObj = null;
+    
+    // Se for uma string de data no formato ISO (YYYY-MM-DD de input type=date)
+    if (typeof tarefaEditada.data === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(tarefaEditada.data)) {
+      // Criar objeto Date corretamente usando esse formato
+      dataObj = new Date(tarefaEditada.data + 'T00:00:00');
+      
+      // Formatar para o padrão DD/MM/YYYY para exibição e armazenamento
+      const dia = String(dataObj.getDate()).padStart(2, '0');
+      const mes = String(dataObj.getMonth() + 1).padStart(2, '0');
+      const ano = dataObj.getFullYear();
+      dataProcessada = `${dia}/${mes}/${ano}`;
+    }
+    
     setTarefas(tarefas.map(tarefa => 
-      tarefa.id === tarefaEditada.id ? tarefaEditada : tarefa
+      tarefa.id === tarefaEditada.id ? {
+        ...tarefaEditada,
+        data: dataProcessada,
+        _dataObj: dataObj,
+      } : tarefa
     ));
   };
 
@@ -81,28 +121,79 @@ export const TaskProvider = ({ children }) => {
           const horasTotal = tarefa.horasTotal || (tarefa.horas + (tarefa.minutos || 0) / 60);
           
           // Garantir que a data seja processada corretamente
-          let dataTarefa;
+          let dataTarefa = tarefa.data;
           if (tarefa.data) {
-            // Converter string de data para objeto Date se necessário
-            dataTarefa = tarefa.data instanceof Date ? 
-              tarefa.data : 
-              new Date(tarefa.data);
-              
-            // Verificar se é uma data válida
-            if (isNaN(dataTarefa.getTime())) {
-              // Se a data for inválida, usar a data atual
-              console.warn(`Data inválida encontrada para tarefa: ${tarefa.nome}. Usando data atual.`);
-              dataTarefa = new Date();
+            // Verificar se a data já está no formato DD/MM/YYYY (formato brasileiro)
+            if (typeof tarefa.data === 'string' && /^\d{2}\/\d{2}\/\d{4}$/.test(tarefa.data)) {
+              // Manter o formato original da data (DD/MM/YYYY)
+              dataTarefa = tarefa.data;
+              // Adicionar um atributo que ajude na filtragem posterior
+              const parts = tarefa.data.split('/');
+              if (parts.length === 3) {
+                const dia = parseInt(parts[0], 10);
+                const mes = parseInt(parts[1], 10) - 1; // Meses em JS começam do 0
+                const ano = parseInt(parts[2], 10);
+                // Criar uma data JavaScript correta para referência interna
+                // Isto não afeta o formato exibido, mas ajuda na filtragem
+                tarefa._dataObj = new Date(ano, mes, dia);
+              }
+            } else if (tarefa.data instanceof Date) {
+              // Se já for um objeto Date, formatar para DD/MM/YYYY
+              const dia = String(tarefa.data.getDate()).padStart(2, '0');
+              const mes = String(tarefa.data.getMonth() + 1).padStart(2, '0');
+              const ano = tarefa.data.getFullYear();
+              dataTarefa = `${dia}/${mes}/${ano}`;
+              tarefa._dataObj = tarefa.data;
+            } else {
+              try {
+                // Tentar converter para Date e depois para DD/MM/YYYY
+                let dataObj;
+                
+                // Verificar se é uma string no formato DD/MM/YYYY
+                if (typeof tarefa.data === 'string') {
+                  const parts = tarefa.data.split('/');
+                  if (parts.length === 3) {
+                    // Assumir formato brasileiro DD/MM/YYYY
+                    const dia = parseInt(parts[0], 10);
+                    const mes = parseInt(parts[1], 10) - 1; // Meses em JS começam do 0
+                    const ano = parseInt(parts[2], 10);
+                    dataObj = new Date(ano, mes, dia);
+                  } else {
+                    // Tentar converter normalmente
+                    dataObj = new Date(tarefa.data);
+                  }
+                } else {
+                  dataObj = new Date(tarefa.data);
+                }
+                
+                if (!isNaN(dataObj.getTime())) {
+                  const dia = String(dataObj.getDate()).padStart(2, '0');
+                  const mes = String(dataObj.getMonth() + 1).padStart(2, '0');
+                  const ano = dataObj.getFullYear();
+                  dataTarefa = `${dia}/${mes}/${ano}`;
+                  tarefa._dataObj = dataObj;
+                } else {
+                  // Se a data for inválida, manter como está ou usar formato padrão
+                  console.warn(`Data inválida encontrada para tarefa: ${tarefa.nome}. Usando formato original.`);
+                }
+              } catch (error) {
+                console.warn(`Erro ao processar data da tarefa: ${tarefa.nome}`, error);
+              }
             }
           } else {
-            // Se não houver data, usar a data atual
-            dataTarefa = new Date();
+            // Se não houver data, usar a data atual no formato DD/MM/YYYY
+            const hoje = new Date();
+            const dia = String(hoje.getDate()).padStart(2, '0');
+            const mes = String(hoje.getMonth() + 1).padStart(2, '0');
+            const ano = hoje.getFullYear();
+            dataTarefa = `${dia}/${mes}/${ano}`;
+            tarefa._dataObj = hoje;
           }
           
           return {
             ...tarefa,
             id: tarefa.id || Date.now() + Math.random(),
-            data: dataTarefa.toISOString(), // Garantir formato ISO para consistência
+            data: dataTarefa, // Usar o formato preservado ou convertido
             horasTotal
           };
         });

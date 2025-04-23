@@ -43,9 +43,6 @@ export const useTaskFilters = () => {
     fimSemana.setDate(fimSemana.getDate() + 6);
     fimSemana.setHours(23, 59, 59, 999);
     
-    const inicioMes = new Date(monthStart);
-    const fimMes = new Date(monthStart.getFullYear(), monthStart.getMonth() + 1, 0, 23, 59, 59, 999);
-    
     const tarefasFiltradas = tarefas.filter(tarefa => {
       // Garantir que a tarefa tenha uma data válida
       if (!tarefa.data) {
@@ -53,11 +50,32 @@ export const useTaskFilters = () => {
       }
       
       try {
-        // Converter a data da tarefa para objeto Date
-        const dataTarefa = new Date(tarefa.data);
+        // Usar _dataObj se disponível (previamente processado)
+        let dataTarefa;
+        
+        if (tarefa._dataObj && tarefa._dataObj instanceof Date) {
+          dataTarefa = new Date(tarefa._dataObj);
+        } else if (typeof tarefa.data === 'string') {
+          // Verificar se é uma data no formato DD/MM/YYYY
+          const parts = tarefa.data.split('/');
+          if (parts.length === 3) {
+            // Formato brasileiro: DD/MM/YYYY
+            const dia = parseInt(parts[0], 10);
+            const mes = parseInt(parts[1], 10) - 1; // Meses em JS começam do 0
+            const ano = parseInt(parts[2], 10);
+            dataTarefa = new Date(ano, mes, dia);
+          } else {
+            // Tentar conversão padrão
+            dataTarefa = new Date(tarefa.data);
+          }
+        } else {
+          // Fallback para outros casos
+          dataTarefa = new Date(tarefa.data);
+        }
         
         // Verificar se é uma data válida
         if (isNaN(dataTarefa.getTime())) {
+          console.warn("Data inválida em calcularHorasUsadas:", tarefa.data);
           return false;
         }
         
@@ -83,7 +101,7 @@ export const useTaskFilters = () => {
     
     total = tarefasFiltradas.reduce((acc, tarefa) => acc + tarefa.horasTotal, 0);
     return total;
-  }, [dataSelecionada, weekStart, monthStart, tarefas, view, forceUpdate]);
+  }, [dataSelecionada, weekStart, monthStart, tarefas, view]);
 
   const getHorasDisponiveis = useCallback(() => {
     switch(view) {
@@ -96,7 +114,7 @@ export const useTaskFilters = () => {
       default:
         return 1;
     }
-  }, [configuracoes, view, forceUpdate]);
+  }, [configuracoes, view]);
 
   const navegarData = (direcao) => {
     if (view === 'diario') {

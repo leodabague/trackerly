@@ -36,8 +36,28 @@ const TaskList = ({ darkMode, view, dataSelecionada, weekStart, monthStart }) =>
       }
       
       try {
-        // Converter a data da tarefa para objeto Date
-        const dataTarefa = new Date(tarefa.data);
+        // Usar _dataObj se disponível (previamente processado)
+        let dataTarefa;
+        
+        if (tarefa._dataObj && tarefa._dataObj instanceof Date) {
+          dataTarefa = new Date(tarefa._dataObj);
+        } else if (typeof tarefa.data === 'string') {
+          // Verificar se é uma data no formato DD/MM/YYYY
+          const parts = tarefa.data.split('/');
+          if (parts.length === 3) {
+            // Formato brasileiro: DD/MM/YYYY
+            const dia = parseInt(parts[0], 10);
+            const mes = parseInt(parts[1], 10) - 1; // Meses em JS começam do 0
+            const ano = parseInt(parts[2], 10);
+            dataTarefa = new Date(ano, mes, dia);
+          } else {
+            // Tentar conversão padrão
+            dataTarefa = new Date(tarefa.data);
+          }
+        } else {
+          // Fallback para outros casos
+          dataTarefa = new Date(tarefa.data);
+        }
         
         // Verificar se é uma data válida
         if (isNaN(dataTarefa.getTime())) {
@@ -93,9 +113,31 @@ const TaskList = ({ darkMode, view, dataSelecionada, weekStart, monthStart }) =>
       
       return false;
     }).sort((a, b) => {
-      const dataA = new Date(a.data);
-      const dataB = new Date(b.data);
-      return dataB - dataA;
+      // Função para obter Date a partir de uma tarefa
+      const getDataTarefa = (tarefa) => {
+        if (tarefa._dataObj && tarefa._dataObj instanceof Date) {
+          return new Date(tarefa._dataObj);
+        }
+        
+        if (typeof tarefa.data === 'string') {
+          // Verificar se é uma data no formato DD/MM/YYYY
+          const parts = tarefa.data.split('/');
+          if (parts.length === 3) {
+            const dia = parseInt(parts[0], 10);
+            const mes = parseInt(parts[1], 10) - 1;
+            const ano = parseInt(parts[2], 10);
+            return new Date(ano, mes, dia);
+          }
+        }
+        
+        // Fallback
+        return new Date(tarefa.data);
+      };
+      
+      const dataA = getDataTarefa(a);
+      const dataB = getDataTarefa(b);
+      
+      return dataB - dataA; // Ordenar do mais recente para o mais antigo
     });
   };
 

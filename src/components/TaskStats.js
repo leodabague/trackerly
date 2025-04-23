@@ -9,17 +9,6 @@ const TaskStats = ({ darkMode, horasUsadas, horasDisponiveis, view, dataSelecion
   const [maxValor, setMaxValor] = useState(0.1);
   const [projecao, setProjecao] = useState(null);
 
-  useEffect(() => {
-    atualizarDados();
-  }, [tarefas, clusters, view, horasUsadas, horasDisponiveis, dataSelecionada, weekStart, monthStart]);
-
-  const atualizarDados = () => {
-    const dadosPorCluster = calcularDadosGrafico();
-    setDadosGrafico(dadosPorCluster);
-    setMaxValor(Math.max(...Object.values(dadosPorCluster), 0.1));
-    setProjecao(calcularProjecaoLinear());
-  };
-
   // Função para filtrar tarefas de acordo com o período selecionado
   const filtrarTarefasPorPeriodo = () => {
     if (!tarefas || !Array.isArray(tarefas) || tarefas.length === 0) {
@@ -30,11 +19,32 @@ const TaskStats = ({ darkMode, horasUsadas, horasDisponiveis, view, dataSelecion
       if (!tarefa.data) return false;
       
       try {
-        // Converter a data da tarefa para objeto Date
-        const dataTarefa = new Date(tarefa.data);
+        // Usar _dataObj se disponível (previamente processado)
+        let dataTarefa;
+        
+        if (tarefa._dataObj && tarefa._dataObj instanceof Date) {
+          dataTarefa = new Date(tarefa._dataObj);
+        } else if (typeof tarefa.data === 'string') {
+          // Verificar se é uma data no formato DD/MM/YYYY
+          const parts = tarefa.data.split('/');
+          if (parts.length === 3) {
+            // Formato brasileiro: DD/MM/YYYY
+            const dia = parseInt(parts[0], 10);
+            const mes = parseInt(parts[1], 10) - 1; // Meses em JS começam do 0
+            const ano = parseInt(parts[2], 10);
+            dataTarefa = new Date(ano, mes, dia);
+          } else {
+            // Tentar conversão padrão
+            dataTarefa = new Date(tarefa.data);
+          }
+        } else {
+          // Fallback para outros casos
+          dataTarefa = new Date(tarefa.data);
+        }
         
         // Verificar se é uma data válida
         if (isNaN(dataTarefa.getTime())) {
+          console.warn('Data inválida encontrada em TaskStats:', tarefa.data);
           return false;
         }
         
@@ -107,22 +117,64 @@ const TaskStats = ({ darkMode, horasUsadas, horasDisponiveis, view, dataSelecion
     if (view !== 'mensal') return null;
 
     const hoje = new Date();
-    const primeiroDiaMes = new Date(hoje.getFullYear(), hoje.getMonth(), 1);
-    const ultimoDiaMes = new Date(hoje.getFullYear(), hoje.getMonth() + 1, 0);
+    const mesSelecionado = new Date(monthStart.getFullYear(), monthStart.getMonth(), 1);
+    const inicioMesAtual = new Date(hoje.getFullYear(), hoje.getMonth(), 1);
     
+    // Verificar situação do mês selecionado em relação ao atual
+    const mesPassado = mesSelecionado < inicioMesAtual;
+    const mesFuturo = mesSelecionado > inicioMesAtual;
+    const mesAtual = !mesPassado && !mesFuturo;
+    
+    // Usar a data do mês selecionado
+    const ultimoDiaDoMesSelecionado = new Date(mesSelecionado.getFullYear(), mesSelecionado.getMonth() + 1, 0);
+    const diasNoMes = ultimoDiaDoMesSelecionado.getDate();
+    
+    // Para meses passados, retornamos null com uma indicação que é um mês passado
+    if (mesPassado) {
+      return {
+        tipo: 'passado',
+        mensagem: 'Projeção não disponível para meses passados'
+      };
+    }
+    
+    // Para meses futuros, mostramos 0% de projeção
+    if (mesFuturo) {
+      return {
+        tipo: 'futuro',
+        atual: "0.0",
+        final: horasDisponiveis.toFixed(1),
+        percentual: "0.0",
+        mensagem: 'Mês ainda não começou'
+      };
+    }
+    
+    // Para o mês atual, calculamos a projeção baseada na taxa diária atual
     const diasPassados = hoje.getDate();
-    const diasNoMes = ultimoDiaMes.getDate();
     
-    const horasPorDia = horasDisponiveis / diasNoMes;
-    const projecaoAtual = horasPorDia * diasPassados;
-    const projecaoFinal = horasDisponiveis;
+    // Calcular a taxa diária baseada nas horas já registradas
+    const taxaDiaria = horasUsadas / diasPassados;
+    
+    // Projetar para o mês inteiro
+    const projecaoAtual = taxaDiaria * diasNoMes;
     
     return {
+      tipo: 'atual',
       atual: projecaoAtual.toFixed(1),
-      final: projecaoFinal.toFixed(1),
+      final: horasDisponiveis.toFixed(1),
       percentual: ((diasPassados / diasNoMes) * 100).toFixed(1)
     };
   };
+
+  // Atualizar os dados quando qualquer dependência relevante mudar
+  useEffect(() => {
+    // Calcular dados para o gráfico
+    const dadosPorCluster = calcularDadosGrafico();
+    setDadosGrafico(dadosPorCluster);
+    setMaxValor(Math.max(...Object.values(dadosPorCluster), 0.1));
+    
+    // Calcular projeção linear
+    setProjecao(calcularProjecaoLinear());
+  }, [tarefas, clusters, view, horasUsadas, horasDisponiveis, dataSelecionada, weekStart, monthStart]);
 
   // Lista predefinida de cores para clusters
   const defaultClusterColors = {
@@ -163,9 +215,14 @@ const TaskStats = ({ darkMode, horasUsadas, horasDisponiveis, view, dataSelecion
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-      <div className={`${darkMode ? 'bg-gray-800' : 'bg-white'} p-6 rounded-lg shadow-sm min-h-[200px]`}>
+      <div className={`${darkMode ? 'bg-gray-800' : 'bg-white'} p-6 rounded-lg shadow-sm min-h-[180px]`}>
         <div className="flex justify-between items-center mb-4">
-          <h3 className="font-medium">Horas Registradas</h3>
+          <div className="flex items-center gap-2">
+            <div className="p-2 bg-blue-100 rounded-full">
+              <Clock className="text-blue-500" size={20} />
+            </div>
+            <h3 className="font-medium">Horas Registradas</h3>
+          </div>
           {view === 'mensal' && (
             <button
               onClick={() => setMostrarProjecao(!mostrarProjecao)}
@@ -184,10 +241,7 @@ const TaskStats = ({ darkMode, horasUsadas, horasDisponiveis, view, dataSelecion
             {!mostrarProjecao ? (
               <>
                 <div className="flex items-center gap-4 mb-4">
-                  <div className="p-3 bg-blue-100 rounded-full">
-                    <Clock className="text-blue-500" size={24} />
-                  </div>
-                  <p className={`text-2xl font-bold ${darkMode ? 'text-white' : ''}`}>
+                  <p className={`text-xl font-bold ${darkMode ? 'text-white' : ''}`}>
                     {horasUsadas.toFixed(1)}h
                     <span className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                       {' '}/ {horasDisponiveis}h
@@ -198,43 +252,62 @@ const TaskStats = ({ darkMode, horasUsadas, horasDisponiveis, view, dataSelecion
                   <div 
                     className="bg-blue-500 h-2 rounded-full" 
                     style={{ width: `${Math.min(100, (horasUsadas / horasDisponiveis) * 100)}%` }}
-                  ></div>
+                  />
                 </div>
               </>
             ) : (
               <div className="space-y-4">
-                {projecao ? (
+                {projecao && (
                   <>
                     <div className="flex items-center gap-4">
-                      <div className="p-3 bg-green-100 rounded-full">
-                        <Clock className="text-green-500" size={24} />
+                      <div className={`p-2 rounded-full ${
+                        projecao.tipo === 'atual' ? 'bg-green-100' : 
+                        projecao.tipo === 'futuro' ? 'bg-blue-100' : 'bg-gray-100'
+                      }`}>
+                        <Clock className={`${
+                          projecao.tipo === 'atual' ? 'text-green-500' :
+                          projecao.tipo === 'futuro' ? 'text-blue-500' : 'text-gray-500'
+                        }`} size={20} />
                       </div>
                       <div>
-                        <p className={`text-lg font-medium ${darkMode ? 'text-white' : ''}`}>
+                        <p className={`text-base font-medium ${darkMode ? 'text-white' : ''}`}>
                           Projeção Linear
                         </p>
-                        <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                          {projecao.atual}h / {projecao.final}h ({projecao.percentual}% do mês)
-                        </p>
+                        {projecao.tipo === 'atual' || projecao.tipo === 'futuro' ? (
+                          <p className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                            {projecao.atual}h / {projecao.final}h ({projecao.percentual}% do mês)
+                            {projecao.tipo === 'futuro' && (
+                              <span className="ml-2 font-italic text-xs">{projecao.mensagem}</span>
+                            )}
+                          </p>
+                        ) : (
+                          <p className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                            {projecao.mensagem}
+                          </p>
+                        )}
                       </div>
                     </div>
-                    <div className="w-full bg-gray-200 rounded-full h-2">
-                      <div 
-                        className="bg-green-500 h-2 rounded-full" 
-                        style={{ width: `${projecao.percentual}%` }}
-                      ></div>
-                    </div>
+                    {(projecao.tipo === 'atual' || projecao.tipo === 'futuro') && (
+                      <div className="w-full bg-gray-200 rounded-full h-2">
+                        <div 
+                          className={`h-2 rounded-full ${
+                            projecao.tipo === 'atual' ? 'bg-green-500' : 'bg-blue-500'
+                          }`}
+                          style={{ width: `${projecao.percentual}%` }}
+                        ></div>
+                      </div>
+                    )}
                   </>
-                ) : null}
+                )}
                 <div className="flex items-center gap-4">
-                  <div className="p-3 bg-blue-100 rounded-full">
-                    <Clock className="text-blue-500" size={24} />
+                  <div className="p-2 bg-blue-100 rounded-full">
+                    <Clock className="text-blue-500" size={20} />
                   </div>
                   <div>
-                    <p className={`text-lg font-medium ${darkMode ? 'text-white' : ''}`}>
+                    <p className={`text-base font-medium ${darkMode ? 'text-white' : ''}`}>
                       Realizado
                     </p>
-                    <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                    <p className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                       {horasUsadas.toFixed(1)}h / {horasDisponiveis}h
                     </p>
                   </div>
@@ -251,7 +324,7 @@ const TaskStats = ({ darkMode, horasUsadas, horasDisponiveis, view, dataSelecion
         </div>
       </div>
       
-      <div className={`${darkMode ? 'bg-gray-800' : 'bg-white'} p-6 rounded-lg shadow-sm min-h-[200px]`}>
+      <div className={`${darkMode ? 'bg-gray-800' : 'bg-white'} p-6 rounded-lg shadow-sm min-h-[180px]`}>
         <div className="flex justify-between items-center mb-4">
           <h3 className="font-medium">Distribuição por Cluster</h3>
         </div>

@@ -44,7 +44,32 @@ const TaskItem = ({ tarefa, darkMode, onEdit, onDelete }) => {
   // Função para formatar a data no padrão DD/MM/YYYY
   const formatarData = (dataString) => {
     try {
-      const data = new Date(dataString);
+      // Verificar se a string já está no formato DD/MM/YYYY
+      if (typeof dataString === 'string' && /^\d{2}\/\d{2}\/\d{4}$/.test(dataString)) {
+        return dataString; // Retornar a data como está
+      }
+      
+      // Tentar interpretar a data corretamente
+      let data;
+      
+      if (typeof dataString === 'string') {
+        // Se for uma string de data no formato ISO ou outro formato
+        // Verificar se parece com uma data no formato DD/MM/YYYY
+        const parts = dataString.split('/');
+        if (parts.length === 3) {
+          // Assumir formato brasileiro DD/MM/YYYY
+          const dia = parseInt(parts[0], 10);
+          const mes = parseInt(parts[1], 10) - 1; // Meses em JS começam do 0
+          const ano = parseInt(parts[2], 10);
+          data = new Date(ano, mes, dia);
+        } else {
+          // Tentar converter normalmente
+          data = new Date(dataString);
+        }
+      } else {
+        // Se não for string, tentar converter diretamente
+        data = new Date(dataString);
+      }
       
       // Verificar se é uma data válida
       if (isNaN(data.getTime())) {
@@ -53,7 +78,10 @@ const TaskItem = ({ tarefa, darkMode, onEdit, onDelete }) => {
       }
       
       // Formatar para o padrão brasileiro DD/MM/YYYY
-      return data.toLocaleDateString('pt-BR');
+      const dia = String(data.getDate()).padStart(2, '0');
+      const mes = String(data.getMonth() + 1).padStart(2, '0');
+      const ano = data.getFullYear();
+      return `${dia}/${mes}/${ano}`;
     } catch (error) {
       console.error("Erro ao formatar data:", error);
       return dataString;

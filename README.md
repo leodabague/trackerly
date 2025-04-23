@@ -6,15 +6,51 @@
 
 Trackerly é uma aplicação web moderna desenvolvida em React para ajudar profissionais a gerenciar e rastrear o tempo dedicado a diferentes projetos e atividades. Com uma interface intuitiva e recursos poderosos, o Trackerly permite que você mantenha um controle preciso das horas trabalhadas em diferentes categorias.
 
+## 📂 Documentação
+
+Para entender a estrutura do código e a organização do projeto, consulte o arquivo [ARCHITECTURE.md](./ARCHITECTURE.md) que contém detalhes sobre componentes, fluxo de dados e localização das funcionalidades.
+
 ## ✨ Funcionalidades Principais
 
-- **Visualização Flexível**: Alternância entre visualizações diária, semanal e mensal
-- **Categorização por Clusters**: Organize suas tarefas em categorias como Desenvolvimento, Reuniões, Pesquisa e Documentação
-- **Projeção de Horas**: Visualize projeções mensais baseadas no seu progresso atual
-- **Modo Escuro**: Interface adaptativa com suporte a tema claro e escuro
-- **Exportação de Dados**: Exporte e importe seus dados facilmente
-- **Relatórios**: Geração de relatórios mensais para acompanhamento
-- **Persistência Local**: Seus dados são salvos automaticamente no navegador
+- **Visualização Flexível**: 
+  - Alternância entre visualizações diária, semanal e mensal
+  - Gráficos interativos para análise de tempo
+  - Visualização de tendências e padrões de trabalho
+
+- **Categorização por Clusters**: 
+  - Organize suas tarefas em categorias personalizáveis
+  - Cores distintas para cada categoria
+  - Filtros rápidos por categoria
+  - Estatísticas por cluster
+
+- **Projeção de Horas**: 
+  - Visualização de projeções mensais baseadas no progresso atual
+  - Alertas de metas não atingidas
+  - Comparativo entre horas planejadas vs. realizadas
+
+- **Interface Adaptativa**: 
+  - Modo claro e escuro automático
+  - Design responsivo para todos os dispositivos
+  - Interface intuitiva e moderna
+  - Atalhos de teclado para ações comuns
+
+- **Gestão de Dados**: 
+  - Exportação e importação de dados em formato JSON
+  - Backup automático no navegador
+  - Histórico de alterações
+  - Restauração de dados
+
+- **Relatórios e Análises**: 
+  - Geração de relatórios mensais detalhados
+  - Gráficos de distribuição de tempo
+  - Exportação de relatórios em PDF
+  - Análise de produtividade
+
+- **Personalização**: 
+  - Categorias personalizáveis
+  - Temas de cores ajustáveis
+  - Configurações de notificações
+  - Preferências de visualização
 
 ## 🚀 Como Usar
 

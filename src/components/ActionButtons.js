@@ -12,7 +12,7 @@ const ActionButtons = ({ darkMode, resetFiltros }) => {
   const [statusSalvamento, setStatusSalvamento] = useState('');
   const [notification, setNotification] = useState({ message: '', type: '' });
   const [isLoading, setIsLoading] = useState(false);
-  const [email, setEmail] = useState('');
+  const [email] = useState('');
 
   // Função para salvar dados no localStorage
   const salvarDados = () => {
@@ -44,7 +44,7 @@ const ActionButtons = ({ darkMode, resetFiltros }) => {
         clusters,
         configuracoes,
         email,
-        dataExportacao: new Date().toISOString()
+        horasDisponiveis: configuracoes.horasMensais
       };
       
       const dadosJSON = JSON.stringify(dadosParaExportar, null, 2);
@@ -133,9 +133,42 @@ const ActionButtons = ({ darkMode, resetFiltros }) => {
       
       // Filtrar tarefas do mês
       const tarefasDoMes = tarefas.filter(tarefa => {
-        const dataTarefa = new Date(tarefa.data);
-        return dataTarefa.getMonth() === dataRelatorio.getMonth() &&
-               dataTarefa.getFullYear() === dataRelatorio.getFullYear();
+        try {
+          let dataTarefa;
+          
+          // Usar _dataObj se disponível (previamente processado)
+          if (tarefa._dataObj && tarefa._dataObj instanceof Date) {
+            dataTarefa = tarefa._dataObj;
+          } else if (typeof tarefa.data === 'string') {
+            // Verificar se é uma data no formato DD/MM/YYYY
+            const parts = tarefa.data.split('/');
+            if (parts.length === 3) {
+              // Formato brasileiro: DD/MM/YYYY
+              const dia = parseInt(parts[0], 10);
+              const mes = parseInt(parts[1], 10) - 1; // Meses em JS começam do 0
+              const ano = parseInt(parts[2], 10);
+              dataTarefa = new Date(ano, mes, dia);
+            } else {
+              // Tentar conversão padrão
+              dataTarefa = new Date(tarefa.data);
+            }
+          } else {
+            // Fallback para outros casos
+            dataTarefa = new Date(tarefa.data);
+          }
+          
+          // Verificar se a data é válida
+          if (isNaN(dataTarefa.getTime())) {
+            console.warn("Data inválida ao filtrar tarefa:", tarefa.data);
+            return false;
+          }
+          
+          return dataTarefa.getMonth() === dataRelatorio.getMonth() &&
+                 dataTarefa.getFullYear() === dataRelatorio.getFullYear();
+        } catch (error) {
+          console.error("Erro ao processar data para filtragem:", error, tarefa);
+          return false;
+        }
       });
 
       // Validar se existem tarefas no mês
@@ -190,14 +223,46 @@ const ActionButtons = ({ darkMode, resetFiltros }) => {
                 </tr>
               </thead>
               <tbody>
-                ${tarefasDoMes.map(tarefa => `
+                ${tarefasDoMes.map(tarefa => {
+                  // Formatar a data corretamente
+                  let dataFormatada;
+                  
+                  // Verificar se a data está no formato DD/MM/YYYY
+                  if (typeof tarefa.data === 'string' && /^\d{2}\/\d{2}\/\d{4}$/.test(tarefa.data)) {
+                    dataFormatada = tarefa.data;
+                  } else if (tarefa._dataObj && tarefa._dataObj instanceof Date) {
+                    // Usar o objeto de data pré-processado
+                    dataFormatada = tarefa._dataObj.toLocaleDateString('pt-BR');
+                  } else {
+                    try {
+                      // Tentar converter para o formato brasileiro
+                      const parts = tarefa.data.split('/');
+                      if (parts.length === 3) {
+                        // Assumir formato DD/MM/YYYY
+                        dataFormatada = tarefa.data;
+                      } else {
+                        // Converter usando Date
+                        const data = new Date(tarefa.data);
+                        if (!isNaN(data.getTime())) {
+                          dataFormatada = data.toLocaleDateString('pt-BR');
+                        } else {
+                          dataFormatada = tarefa.data;
+                        }
+                      }
+                    } catch (error) {
+                      console.error("Erro ao formatar data para relatório:", error);
+                      dataFormatada = tarefa.data;
+                    }
+                  }
+                  
+                  return `
                   <tr>
-                    <td style="padding: 8px; border: 1px solid #e5e7eb;">${new Date(tarefa.data).toLocaleDateString('pt-BR')}</td>
+                    <td style="padding: 8px; border: 1px solid #e5e7eb;">${dataFormatada}</td>
                     <td style="padding: 8px; border: 1px solid #e5e7eb;">${tarefa.nome}</td>
                     <td style="padding: 8px; border: 1px solid #e5e7eb;">${tarefa.cluster}</td>
                     <td style="padding: 8px; border: 1px solid #e5e7eb; text-align: right;">${tarefa.horasTotal.toFixed(1)}h</td>
                   </tr>
-                `).join('')}
+                `}).join('')}
               </tbody>
             </table>
           </div>
