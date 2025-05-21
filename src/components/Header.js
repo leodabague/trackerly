@@ -13,7 +13,7 @@ const Header = ({ darkMode, alternarTema }) => {
         {darkMode ? <Sun size={20} /> : <Moon size={20} />}
       </button>
       <h1 className={`text-3xl font-bold ${darkMode ? 'text-gray-100' : 'text-gray-800'}`}>
-        Tracking tempo para projetos
+        Tracker de Tempo
       </h1>
       <p className={`${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>por Leo Dabague</p>
     </header>
