@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, forwardRef, useImperativeHandle } from 'react';
 import { Plus } from 'lucide-react';
 import { useTaskContext } from '../contexts/TaskContext';
 import TaskItem from './TaskItem';
 import TaskForm from './TaskForm';
 
-const TaskList = ({ darkMode, view, dataSelecionada, weekStart, monthStart }) => {
+const TaskList = forwardRef(({ darkMode, view, dataSelecionada, weekStart, monthStart }, ref) => {
   const { tarefas, removerTarefa } = useTaskContext();
   const [showModal, setShowModal] = useState(false);
   const [tarefaEditando, setTarefaEditando] = useState(null);
@@ -143,6 +143,12 @@ const TaskList = ({ darkMode, view, dataSelecionada, weekStart, monthStart }) =>
 
   const tarefasExibidas = listaExpandida ? tarefasFiltradas : tarefasFiltradas.slice(0, 5);
 
+  // Expose methods to parent component
+  useImperativeHandle(ref, () => ({
+    openNewTaskModal: () => setShowModal(true),
+    openEditTaskModal: (tarefa) => setTarefaEditando(tarefa)
+  }));
+
   return (
     <div className={`${darkMode ? 'bg-gray-800' : 'bg-white'} rounded-lg shadow-sm p-6 mb-8`}>
       <div className="flex justify-between items-center mb-4">
@@ -151,10 +157,14 @@ const TaskList = ({ darkMode, view, dataSelecionada, weekStart, monthStart }) =>
         </h2>
         <button 
           onClick={() => setShowModal(true)}
-          className="px-3 py-1 bg-blue-500 text-white rounded-md flex items-center gap-1"
+          className="px-3 py-1 bg-blue-500 text-white rounded-md flex items-center gap-1 relative group"
+          title="Adicionar Nova Tarefa (Ctrl+N)"
         >
           <Plus size={16} />
           Adicionar
+          <span className="hidden group-hover:block absolute -top-8 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white text-xs px-2 py-1 rounded whitespace-nowrap">
+            Ctrl+N
+          </span>
         </button>
       </div>
       
@@ -208,6 +218,8 @@ const TaskList = ({ darkMode, view, dataSelecionada, weekStart, monthStart }) =>
       )}
     </div>
   );
-};
+});
+
+TaskList.displayName = 'TaskList';
 
 export default TaskList; 

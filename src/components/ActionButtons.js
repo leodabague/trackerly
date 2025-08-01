@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, forwardRef, useImperativeHandle } from 'react';
 import { Save, Download, FileText, Settings, X, Upload } from 'lucide-react';
 import { useTaskContext } from '../contexts/TaskContext';
 import html2pdf from 'html2pdf.js';
 
-const ActionButtons = ({ darkMode, resetFiltros }) => {
+const ActionButtons = forwardRef(({ darkMode, resetFiltros }, ref) => {
   const { tarefas, clusters, configuracoes, setConfiguracoes, setAllData } = useTaskContext();
   const [showExportModal, setShowExportModal] = useState(false);
   const [showConfigModal, setShowConfigModal] = useState(false);
@@ -13,6 +13,16 @@ const ActionButtons = ({ darkMode, resetFiltros }) => {
   const [notification, setNotification] = useState({ message: '', type: '' });
   const [isLoading, setIsLoading] = useState(false);
   const [email] = useState('');
+
+  // Expose methods to parent component
+  useImperativeHandle(ref, () => ({
+    quickExport: () => {
+      // Quick export with default filename
+      exportarDados();
+    },
+    openExportModal: () => setShowExportModal(true),
+    openConfigModal: () => setShowConfigModal(true)
+  }));
 
   // Função para salvar dados no localStorage
   const salvarDados = () => {
@@ -313,10 +323,14 @@ const ActionButtons = ({ darkMode, resetFiltros }) => {
         
         <button 
           onClick={() => setShowExportModal(true)}
-          className="px-4 py-2 bg-purple-500 text-white rounded-md flex items-center gap-2 w-full sm:w-auto justify-center"
+          className="px-4 py-2 bg-purple-500 text-white rounded-md flex items-center gap-2 w-full sm:w-auto justify-center relative group"
+          title="Exportar/Importar Dados (Ctrl+E)"
         >
           <Download size={16} />
           Exportar/Importar
+          <span className="hidden group-hover:block absolute -top-8 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white text-xs px-2 py-1 rounded whitespace-nowrap">
+            Ctrl+E
+          </span>
         </button>
         
         <button 
@@ -329,10 +343,14 @@ const ActionButtons = ({ darkMode, resetFiltros }) => {
 
         <button 
           onClick={() => setShowConfigModal(true)}
-          className="px-4 py-2 bg-gray-500 text-white rounded-md flex items-center gap-2 w-full sm:w-auto justify-center"
+          className="px-4 py-2 bg-gray-500 text-white rounded-md flex items-center gap-2 w-full sm:w-auto justify-center relative group"
+          title="Configurações (Ctrl+,)"
         >
           <Settings size={16} />
           Configurações
+          <span className="hidden group-hover:block absolute -top-8 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white text-xs px-2 py-1 rounded whitespace-nowrap">
+            Ctrl+,
+          </span>
         </button>
       </div>
       
@@ -550,6 +568,8 @@ const ActionButtons = ({ darkMode, resetFiltros }) => {
       )}
     </>
   );
-};
+});
+
+ActionButtons.displayName = 'ActionButtons';
 
 export default ActionButtons; 
