@@ -1,11 +1,22 @@
-import React, { useState } from 'react';
+import React, { useState, forwardRef, useImperativeHandle } from 'react';
 import { Keyboard, X } from 'lucide-react';
 
-const KeyboardShortcuts = ({ darkMode }) => {
+const KeyboardShortcuts = forwardRef(({ darkMode }, ref) => {
   const [showShortcuts, setShowShortcuts] = useState(false);
 
+  // Expose methods to parent component
+  useImperativeHandle(ref, () => ({
+    closeModal: () => {
+      if (showShortcuts) {
+        setShowShortcuts(false);
+        return true;
+      }
+      return false;
+    }
+  }));
+
   const shortcuts = [
-    { key: 'Ctrl+N', description: 'Criar nova tarefa', icon: '📝' },
+    { key: 'Ctrl+M', description: 'Criar nova tarefa', icon: '📝' },
     { key: 'Ctrl+S', description: 'Exportar dados rapidamente', icon: '💾' },
     { key: 'Ctrl+E', description: 'Abrir modal de exportação', icon: '📤' },
     { key: 'Ctrl+,', description: 'Abrir configurações', icon: '⚙️' },
@@ -82,6 +93,8 @@ const KeyboardShortcuts = ({ darkMode }) => {
       )}
     </>
   );
-};
+});
+
+KeyboardShortcuts.displayName = 'KeyboardShortcuts';
 
 export default KeyboardShortcuts;

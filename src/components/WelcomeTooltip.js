@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, forwardRef, useImperativeHandle } from 'react';
 import { X, Keyboard } from 'lucide-react';
 
-const WelcomeTooltip = ({ darkMode }) => {
+const WelcomeTooltip = forwardRef(({ darkMode }, ref) => {
   const [showWelcome, setShowWelcome] = useState(false);
 
   useEffect(() => {
@@ -23,11 +23,22 @@ const WelcomeTooltip = ({ darkMode }) => {
     localStorage.setItem('trackerly-keyboard-shortcuts-welcome', 'true');
   };
 
+  // Expose methods to parent component
+  useImperativeHandle(ref, () => ({
+    closeModal: () => {
+      if (showWelcome) {
+        dismissWelcome();
+        return true;
+      }
+      return false;
+    }
+  }));
+
   if (!showWelcome) return null;
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
-      <div className={`relative max-w-sm mx-4 p-6 rounded-lg shadow-xl animate-pulse ${
+      <div className={`relative max-w-sm mx-4 p-6 rounded-lg shadow-xl transition-all duration-300 transform scale-100 ${
         darkMode ? 'bg-gray-800 text-gray-100' : 'bg-white text-gray-900'
       }`}>
         <button
@@ -54,7 +65,7 @@ const WelcomeTooltip = ({ darkMode }) => {
             <kbd className={`px-2 py-1 text-xs font-mono rounded ${
               darkMode ? 'bg-gray-700 text-gray-300' : 'bg-gray-100 text-gray-700'
             }`}>
-              Ctrl+N
+              Ctrl+M
             </kbd>
           </div>
           <div className="flex items-center justify-between">
@@ -82,6 +93,8 @@ const WelcomeTooltip = ({ darkMode }) => {
       </div>
     </div>
   );
-};
+});
+
+WelcomeTooltip.displayName = 'WelcomeTooltip';
 
 export default WelcomeTooltip;

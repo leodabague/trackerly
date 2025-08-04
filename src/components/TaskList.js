@@ -146,7 +146,19 @@ const TaskList = forwardRef(({ darkMode, view, dataSelecionada, weekStart, month
   // Expose methods to parent component
   useImperativeHandle(ref, () => ({
     openNewTaskModal: () => setShowModal(true),
-    openEditTaskModal: (tarefa) => setTarefaEditando(tarefa)
+    openEditTaskModal: (tarefa) => setTarefaEditando(tarefa),
+    closeModals: () => {
+      let fechouAlgum = false;
+      if (showModal) {
+        setShowModal(false);
+        fechouAlgum = true;
+      }
+      if (tarefaEditando) {
+        setTarefaEditando(null);
+        fechouAlgum = true;
+      }
+      return fechouAlgum;
+    }
   }));
 
   return (

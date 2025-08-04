@@ -30,13 +30,15 @@ const AppContent = () => {
   // Refs for accessing child component methods
   const taskListRef = useRef();
   const actionButtonsRef = useRef();
+  const keyboardShortcutsRef = useRef();
+  const welcomeTooltipRef = useRef();
 
   // Define keyboard shortcuts
   const shortcuts = {
-    'ctrl+n': () => {
+    'ctrl+m': () => {
       if (taskListRef.current) {
         taskListRef.current.openNewTaskModal();
-        window.showShortcutNotification?.('Ctrl+N', 'Nova tarefa');
+        window.showShortcutNotification?.('Ctrl+M', 'Nova tarefa');
       }
     },
     'ctrl+s': () => {
@@ -55,6 +57,30 @@ const AppContent = () => {
       if (actionButtonsRef.current) {
         actionButtonsRef.current.openConfigModal();
         window.showShortcutNotification?.('Ctrl+,', 'Configurações');
+      }
+    },
+    'escape': () => {
+      // Fechar todos os modais possíveis quando ESC for pressionado
+      let modalFechado = false;
+      
+      if (taskListRef.current && taskListRef.current.closeModals) {
+        modalFechado = taskListRef.current.closeModals() || modalFechado;
+      }
+      
+      if (actionButtonsRef.current && actionButtonsRef.current.closeModals) {
+        modalFechado = actionButtonsRef.current.closeModals() || modalFechado;
+      }
+      
+      if (keyboardShortcutsRef.current && keyboardShortcutsRef.current.closeModal) {
+        modalFechado = keyboardShortcutsRef.current.closeModal() || modalFechado;
+      }
+      
+      if (welcomeTooltipRef.current && welcomeTooltipRef.current.closeModal) {
+        modalFechado = welcomeTooltipRef.current.closeModal() || modalFechado;
+      }
+      
+      if (modalFechado) {
+        window.showShortcutNotification?.('Esc', 'Modal fechado');
       }
     }
   };
@@ -102,13 +128,13 @@ const AppContent = () => {
         />
         
         {/* Keyboard shortcuts help */}
-        <KeyboardShortcuts darkMode={darkMode} />
+        <KeyboardShortcuts ref={keyboardShortcutsRef} darkMode={darkMode} />
         
         {/* Shortcut notification */}
         <ShortcutNotification darkMode={darkMode} />
         
         {/* Welcome tooltip for keyboard shortcuts */}
-        <WelcomeTooltip darkMode={darkMode} />
+        <WelcomeTooltip ref={welcomeTooltipRef} darkMode={darkMode} />
       </div>
     </>
   );

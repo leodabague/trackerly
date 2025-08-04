@@ -27,6 +27,23 @@ export const useKeyboardShortcuts = (shortcuts = {}) => {
     const alt = event.altKey;
     const shift = event.shiftKey;
 
+    // Special aggressive handling for Ctrl+M for new task
+    if (ctrl && key === 'm' && !alt && !shift) {
+      if (shortcuts['ctrl+m']) {
+        // Extra aggressive prevention for any conflicts
+        event.preventDefault();
+        event.stopPropagation();
+        event.stopImmediatePropagation();
+        
+        try {
+          shortcuts['ctrl+m'](event);
+        } catch (error) {
+          console.error('Erro ao executar atalho Ctrl+M:', error);
+        }
+        return;
+      }
+    }
+
     // Build shortcut string
     let shortcutKey = '';
     if (ctrl) shortcutKey += 'ctrl+';

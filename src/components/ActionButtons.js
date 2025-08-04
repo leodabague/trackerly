@@ -21,7 +21,23 @@ const ActionButtons = forwardRef(({ darkMode, resetFiltros }, ref) => {
       exportarDados();
     },
     openExportModal: () => setShowExportModal(true),
-    openConfigModal: () => setShowConfigModal(true)
+    openConfigModal: () => setShowConfigModal(true),
+    closeModals: () => {
+      let fechouAlgum = false;
+      if (showExportModal) {
+        setShowExportModal(false);
+        fechouAlgum = true;
+      }
+      if (showConfigModal) {
+        setShowConfigModal(false);
+        fechouAlgum = true;
+      }
+      if (showEmailModal) {
+        setShowEmailModal(false);
+        fechouAlgum = true;
+      }
+      return fechouAlgum;
+    }
   }));
 
   // Função para salvar dados no localStorage
