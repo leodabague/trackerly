@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { X } from 'lucide-react';
 import { useTaskContext } from '../contexts/TaskContext';
 
 const TaskForm = ({ onClose, darkMode, tarefaEditando }) => {
   const { adicionarTarefa, editarTarefa, clusters } = useTaskContext();
+  const nomeInputRef = useRef(null);
   const [novaTarefa, setNovaTarefa] = useState({
     nome: '',
     data: new Date().toISOString().split('T')[0],
@@ -11,6 +12,18 @@ const TaskForm = ({ onClose, darkMode, tarefaEditando }) => {
     minutos: 0,
     cluster: 'Desenvolvimento'
   });
+
+  // Efeito para focar automaticamente no campo nome quando o modal abrir
+  useEffect(() => {
+    // Pequeno delay para garantir que o modal esteja totalmente renderizado
+    const timer = setTimeout(() => {
+      if (nomeInputRef.current) {
+        nomeInputRef.current.focus();
+      }
+    }, 100);
+    
+    return () => clearTimeout(timer);
+  }, []);
 
   // Efeito para carregar dados da tarefa sendo editada
   useEffect(() => {
@@ -84,6 +97,7 @@ const TaskForm = ({ onClose, darkMode, tarefaEditando }) => {
             Nome da Tarefa
           </label>
           <input
+            ref={nomeInputRef}
             type="text"
             value={novaTarefa.nome}
             onChange={(e) => setNovaTarefa({...novaTarefa, nome: e.target.value})}
