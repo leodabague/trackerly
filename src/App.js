@@ -39,8 +39,7 @@ const AppContent = () => {
         window.showShortcutNotification?.('Ctrl+N', 'Nova tarefa');
       }
     },
-    'ctrl+s': (e) => {
-      e?.preventDefault();
+    'ctrl+s': () => {
       if (actionButtonsRef.current) {
         actionButtonsRef.current.quickExport();
         window.showShortcutNotification?.('Ctrl+S', 'Exportando dados...');

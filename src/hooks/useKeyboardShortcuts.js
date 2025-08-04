@@ -34,18 +34,26 @@ export const useKeyboardShortcuts = (shortcuts = {}) => {
     if (shift) shortcutKey += 'shift+';
     shortcutKey += key;
 
-    // Execute the corresponding action
+    // Check if we have this shortcut defined and prevent default browser behavior immediately
     if (shortcuts[shortcutKey]) {
+      // Prevent default browser behavior FIRST
       event.preventDefault();
       event.stopPropagation();
-      shortcuts[shortcutKey]();
+      
+      // Then execute our custom action
+      try {
+        shortcuts[shortcutKey](event);
+      } catch (error) {
+        console.error('Erro ao executar atalho:', shortcutKey, error);
+      }
     }
   }, [shortcuts]);
 
   useEffect(() => {
-    document.addEventListener('keydown', handleKeyDown);
+    // Use capture phase to ensure we intercept events before the browser
+    document.addEventListener('keydown', handleKeyDown, { capture: true });
     return () => {
-      document.removeEventListener('keydown', handleKeyDown);
+      document.removeEventListener('keydown', handleKeyDown, { capture: true });
     };
   }, [handleKeyDown]);
 
