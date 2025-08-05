@@ -84,6 +84,27 @@ trackerly/
 - Geração de relatórios em PDF com html2pdf.js
 - Configurações para horas disponíveis (diárias, semanais, mensais)
 
+#### `KeyboardShortcuts.js`
+- Modal interativo que exibe todos os atalhos de teclado disponíveis
+- Botão flutuante para acesso rápido aos atalhos (canto inferior direito)
+- Formatação automática de atalhos para Windows/Linux (Ctrl) e macOS (⌘)
+- Interface responsiva e adaptada ao tema claro/escuro
+- Implementa forwardRef para controle externo do modal
+
+#### `ShortcutNotification.js`
+- Sistema de notificações temporárias para feedback de atalhos
+- Exibe notificação visual quando um atalho é usado
+- Desaparece automaticamente após 2 segundos
+- Design consistente com o tema da aplicação
+- Integração global via window.showShortcutNotification
+
+#### `WelcomeTooltip.js`
+- Tooltip de boas-vindas para apresentar novos atalhos aos usuários
+- Exibido apenas na primeira visita (controle via localStorage)
+- Lista os atalhos mais importantes (Ctrl+M, Ctrl+S)
+- Interface elegante com ícone de teclado
+- Pode ser fechado manualmente ou via Escape
+
 ## Gerenciamento de Estado
 
 ### Context API (`/src/contexts/`)
@@ -109,6 +130,15 @@ trackerly/
 - Calcula estatísticas como horas utilizadas e disponíveis
 - Suporte para visualizações diárias, semanais e mensais
 - Formata datas e períodos para exibição na interface
+
+#### `useKeyboardShortcuts.js`  
+- Hook personalizado para gerenciamento global de atalhos de teclado
+- Intercepta eventos de teclado usando capture phase para máxima prioridade
+- Previne conflitos com campos de entrada (input, textarea, select)
+- Suporte nativo para Windows/Linux (Ctrl) e macOS (⌘)
+- Tratamento especial para tecla Escape (sempre ativa)
+- Inclui `useShortcutHints` para formatação de atalhos na UI
+- Gerenciamento robusto de erros e prevenção de comportamentos padrão do browser
 
 ## Fluxo de Dados
 
@@ -139,6 +169,18 @@ trackerly/
 - **Layout Responsivo**: Implementado com Tailwind CSS em todos os componentes
 - **Dark Mode**: Configurado globalmente em `App.js`
 
+### 5. Sistema de Atalhos de Teclado
+- **Gerenciamento de Atalhos**: `useKeyboardShortcuts.js` (hook principal)
+- **Interface de Ajuda**: `KeyboardShortcuts.js` (modal de consulta)
+- **Feedback Visual**: `ShortcutNotification.js` (notificações de uso)
+- **Introdução de Usuário**: `WelcomeTooltip.js` (primeira experiência)
+- **Atalhos Disponíveis**:
+  - `Ctrl+M` / `⌘M`: Criar nova tarefa
+  - `Ctrl+S` / `⌘S`: Exportação rápida de dados
+  - `Ctrl+E` / `⌘E`: Abrir modal de exportação
+  - `Ctrl+,` / `⌘,`: Acessar configurações
+  - `Esc`: Fechar modais e diálogos
+
 ## Considerações Técnicas
 
 ### Formato de Dados
@@ -158,11 +200,22 @@ trackerly/
 - Visualização de dados agrupados por cluster
 - Filtros por período para análise de produtividade
 
+### Sistema de Atalhos
+- **Interceptação de eventos**: Uso de capture phase para máxima prioridade
+- **Prevenção de conflitos**: Detecção inteligente de campos de entrada ativos
+- **Compatibilidade multiplataforma**: Suporte automático para Ctrl (Windows/Linux) e ⌘ (macOS)
+- **Feedback imediato**: Notificações visuais temporárias para confirmar ações
+- **Persistência de preferências**: Controle de exibição de tooltips via localStorage
+- **Tratamento de erros**: Logs detalhados e recuperação graceful de falhas
+
 ## Desafios Resolvidos
 - **Manipulação de Datas**: Implementação de conversões consistentes entre formatos de data
 - **UI Adaptativa**: Interface que funciona em vários dispositivos e tamanhos de tela
 - **Persistência de Dados**: Armazenamento seguro de dados no localStorage com backup/restauração
 - **Gerenciamento de Temas**: Suporte completo para temas claro e escuro
+- **Sistema de Atalhos**: Implementação robusta que previne conflitos com navegador e campos de entrada
+- **Experiência Multiplataforma**: Detecção automática e formatação adequada para Windows/Linux/macOS
+- **Feedback de Interação**: Sistema de notificações não-intrusivo para ações via atalhos
 
 ## Extensibilidade
 
@@ -171,3 +224,7 @@ A arquitetura permite fácil extensão para:
 - Implementar sincronização com um backend
 - Adicionar recursos como notificações ou integração com calendários
 - Criar relatórios personalizados para diferentes períodos 
+- **Expandir sistema de atalhos**: Fácil adição de novos atalhos via configuração do hook
+- **Personalização de atalhos**: Implementar preferências de usuário para redefinir atalhos
+- **Atalhos contextuais**: Adicionar atalhos específicos para diferentes seções/modais
+- **Integração com acessibilidade**: Expandir suporte para tecnologias assistivas 
