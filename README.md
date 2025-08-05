@@ -59,6 +59,22 @@ Para entender a estrutura do código e a organização do projeto, consulte o ar
 3. **Visualizar Progresso**: Acompanhe suas horas através das diferentes visualizações
 4. **Exportar Dados**: Use o botão de exportação para fazer backup dos seus dados
 
+## ⌨️ Atalhos de Teclado
+
+Para uma experiência mais fluida, o Trackerly oferece atalhos de teclado para ações frequentes:
+
+| Atalho | Ação | Descrição |
+|--------|------|-----------|
+| `Ctrl+M` | 📝 Nova Tarefa | Abre o formulário para criar uma nova tarefa |
+| `Ctrl+S` | 💾 Exportação Rápida | Exporta os dados instantaneamente |
+| `Ctrl+E` | 📤 Modal de Exportação | Abre as opções avançadas de exportação |
+| `Ctrl+,` | ⚙️ Configurações | Acessa as configurações do aplicativo |
+| `Esc` | ❌ Fechar | Fecha modais e diálogos abertos |
+
+> **💡 Dica**: No Mac, use `⌘` (Cmd) no lugar de `Ctrl`. Os atalhos só funcionam quando você não está digitando em campos de texto.
+
+> **❓ Ajuda**: Clique no ícone de teclado no canto inferior direito para ver os atalhos a qualquer momento.
+
 ## 🛠️ Tecnologias Utilizadas
 
 - React.js
