@@ -170,12 +170,12 @@ const TaskList = forwardRef(({ darkMode, view, dataSelecionada, weekStart, month
         <button 
           onClick={() => setShowModal(true)}
           className="px-3 py-1 bg-blue-500 text-white rounded-md flex items-center gap-1 relative group"
-          title="Adicionar Nova Tarefa (Ctrl+N)"
+          title="Adicionar Nova Tarefa (Ctrl+M)"
         >
           <Plus size={16} />
           Adicionar
           <span className="hidden group-hover:block absolute -top-8 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white text-xs px-2 py-1 rounded whitespace-nowrap">
-            Ctrl+N
+            Ctrl+M
           </span>
         </button>
       </div>
