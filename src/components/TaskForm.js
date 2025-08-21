@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { X } from 'lucide-react';
 import { useTaskContext } from '../contexts/TaskContext';
+import { useAutocomplete } from '../hooks/useAutocomplete';
+import AutocompleteInput from './AutocompleteInput';
 
 const TaskForm = ({ onClose, darkMode, tarefaEditando }) => {
   const { adicionarTarefa, editarTarefa, clusters } = useTaskContext();
@@ -12,6 +14,18 @@ const TaskForm = ({ onClose, darkMode, tarefaEditando }) => {
     minutos: 0,
     cluster: 'Desenvolvimento'
   });
+
+  // Hook de autocomplete para nomes de tarefas
+  const {
+    inputValue: nomeAutocomplete,
+    setInputValue: setNomeAutocomplete,
+    suggestions,
+    showSuggestions,
+    handleInputChange,
+    selectSuggestion,
+    hideSuggestions,
+    showSuggestionsIfHasInput
+  } = useAutocomplete();
 
   // Efeito para focar automaticamente no campo nome quando o modal abrir
   useEffect(() => {
@@ -39,8 +53,14 @@ const TaskForm = ({ onClose, darkMode, tarefaEditando }) => {
         ...tarefaEditando,
         data: dataFormatada
       });
+      
+      // Sincronizar autocomplete com o nome da tarefa sendo editada
+      setNomeAutocomplete(tarefaEditando.nome || '');
+    } else {
+      // Limpar autocomplete quando não estiver editando
+      setNomeAutocomplete('');
     }
-  }, [tarefaEditando]);
+  }, [tarefaEditando, setNomeAutocomplete]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -48,18 +68,19 @@ const TaskForm = ({ onClose, darkMode, tarefaEditando }) => {
     // Calcular o horasTotal
     const horasTotal = novaTarefa.horas + (novaTarefa.minutos / 60);
     
+    // Usar o nome do autocomplete
+    const tarefaParaSalvar = {
+      ...novaTarefa,
+      nome: nomeAutocomplete,
+      horasTotal
+    };
+    
     // Se estiver editando uma tarefa existente
     if (tarefaEditando) {
-      editarTarefa({
-        ...novaTarefa,
-        horasTotal
-      });
+      editarTarefa(tarefaParaSalvar);
     } else {
       // Se estiver adicionando uma nova tarefa
-      adicionarTarefa({
-        ...novaTarefa,
-        horasTotal
-      });
+      adicionarTarefa(tarefaParaSalvar);
     }
     
     onClose();
@@ -96,18 +117,29 @@ const TaskForm = ({ onClose, darkMode, tarefaEditando }) => {
           <label className={`block text-sm font-medium ${darkMode ? 'text-gray-300' : 'text-gray-700'} mb-1`}>
             Nome da Tarefa
           </label>
-          <input
-            ref={nomeInputRef}
-            type="text"
-            value={novaTarefa.nome}
-            onChange={(e) => setNovaTarefa({...novaTarefa, nome: e.target.value})}
+          <AutocompleteInput
+            value={nomeAutocomplete}
+            onChange={(value) => {
+              handleInputChange(value);
+              setNovaTarefa({...novaTarefa, nome: value});
+            }}
+            onSelect={(suggestion) => {
+              selectSuggestion(suggestion);
+              setNovaTarefa({...novaTarefa, nome: suggestion});
+            }}
+            onFocus={showSuggestionsIfHasInput}
+            onBlur={hideSuggestions}
+            suggestions={suggestions}
+            showSuggestions={showSuggestions}
+            placeholder="Ex: Reunião com cliente"
             className={`w-full p-2 border rounded-md ${
               darkMode 
                 ? 'bg-gray-700 border-gray-600 text-gray-100 placeholder-gray-400' 
                 : 'bg-white border-gray-300 text-gray-900 placeholder-gray-400'
             }`}
-            placeholder="Ex: Reunião com cliente"
+            darkMode={darkMode}
             required
+            autoFocus
           />
         </div>
         
