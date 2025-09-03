@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Clock, ChevronDown } from 'lucide-react';
 import { useTaskContext } from '../contexts/TaskContext';
 
-const TaskStats = ({ darkMode, horasUsadas, horasDisponiveis, view, dataSelecionada, weekStart, monthStart }) => {
+const TaskStats = ({ horasUsadas, horasDisponiveis, view, dataSelecionada, weekStart, monthStart }) => {
   const { tarefas, clusters } = useTaskContext();
   const [mostrarProjecao, setMostrarProjecao] = useState(false);
   const [dadosGrafico, setDadosGrafico] = useState({});
@@ -215,18 +215,18 @@ const TaskStats = ({ darkMode, horasUsadas, horasDisponiveis, view, dataSelecion
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-      <div className={`${darkMode ? 'bg-gray-800' : 'bg-white'} p-6 rounded-lg shadow-sm min-h-[180px]`}>
+      <div className="bg-card p-6 rounded-lg shadow-sm min-h-[180px]">
         <div className="flex justify-between items-center mb-4">
           <div className="flex items-center gap-2">
-            <div className="p-2 bg-blue-100 rounded-full">
-              <Clock className="text-blue-500" size={20} />
+            <div className="p-2 bg-primary/10 rounded-full">
+              <Clock className="text-primary" size={20} />
             </div>
             <h3 className="font-medium">Horas Registradas</h3>
           </div>
           {view === 'mensal' && (
             <button
               onClick={() => setMostrarProjecao(!mostrarProjecao)}
-              className={`p-1 rounded-full hover:bg-gray-100 ${darkMode ? 'hover:bg-gray-700' : ''}`}
+              className="p-1 rounded-full hover:bg-accent"
             >
               <ChevronDown
                 size={20}
@@ -241,16 +241,16 @@ const TaskStats = ({ darkMode, horasUsadas, horasDisponiveis, view, dataSelecion
             {!mostrarProjecao ? (
               <>
                 <div className="flex items-center gap-4 mb-4">
-                  <p className={`text-xl font-bold ${darkMode ? 'text-white' : ''}`}>
+                  <p className="text-xl font-bold">
                     {horasUsadas.toFixed(1)}h
-                    <span className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                    <span className="text-sm text-muted-foreground">
                       {' '}/ {horasDisponiveis}h
                     </span>
                   </p>
                 </div>
-                <div className="w-full bg-gray-200 rounded-full h-2">
+                <div className="w-full bg-secondary rounded-full h-2">
                   <div 
-                    className="bg-blue-500 h-2 rounded-full" 
+                    className="bg-primary h-2 rounded-full" 
                     style={{ width: `${Math.min(100, (horasUsadas / horasDisponiveis) * 100)}%` }}
                   />
                 </div>
@@ -270,25 +270,25 @@ const TaskStats = ({ darkMode, horasUsadas, horasDisponiveis, view, dataSelecion
                         }`} size={20} />
                       </div>
                       <div>
-                        <p className={`text-base font-medium ${darkMode ? 'text-white' : ''}`}>
+                        <p className="text-base font-medium">
                           Projeção Linear
                         </p>
                         {projecao.tipo === 'atual' || projecao.tipo === 'futuro' ? (
-                          <p className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                          <p className="text-xs text-muted-foreground">
                             {projecao.atual}h / {projecao.final}h ({projecao.percentual}% do mês)
                             {projecao.tipo === 'futuro' && (
                               <span className="ml-2 font-italic text-xs">{projecao.mensagem}</span>
                             )}
                           </p>
                         ) : (
-                          <p className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                          <p className="text-xs text-muted-foreground">
                             {projecao.mensagem}
                           </p>
                         )}
                       </div>
                     </div>
                     {(projecao.tipo === 'atual' || projecao.tipo === 'futuro') && (
-                      <div className="w-full bg-gray-200 rounded-full h-2">
+                      <div className="w-full bg-secondary rounded-full h-2">
                         <div 
                           className={`h-2 rounded-full ${
                             projecao.tipo === 'atual' ? 'bg-green-500' : 'bg-blue-500'
@@ -300,21 +300,21 @@ const TaskStats = ({ darkMode, horasUsadas, horasDisponiveis, view, dataSelecion
                   </>
                 )}
                 <div className="flex items-center gap-4">
-                  <div className="p-2 bg-blue-100 rounded-full">
-                    <Clock className="text-blue-500" size={20} />
+                  <div className="p-2 bg-primary/10 rounded-full">
+                    <Clock className="text-primary" size={20} />
                   </div>
                   <div>
-                    <p className={`text-base font-medium ${darkMode ? 'text-white' : ''}`}>
+                    <p className="text-base font-medium">
                       Realizado
                     </p>
-                    <p className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                    <p className="text-xs text-muted-foreground">
                       {horasUsadas.toFixed(1)}h / {horasDisponiveis}h
                     </p>
                   </div>
                 </div>
-                <div className="w-full bg-gray-200 rounded-full h-2">
+                <div className="w-full bg-secondary rounded-full h-2">
                   <div 
-                    className="bg-blue-500 h-2 rounded-full" 
+                    className="bg-primary h-2 rounded-full" 
                     style={{ width: `${Math.min(100, (horasUsadas / horasDisponiveis) * 100)}%` }}
                   ></div>
                 </div>
@@ -324,7 +324,7 @@ const TaskStats = ({ darkMode, horasUsadas, horasDisponiveis, view, dataSelecion
         </div>
       </div>
       
-      <div className={`${darkMode ? 'bg-gray-800' : 'bg-white'} p-6 rounded-lg shadow-sm min-h-[180px]`}>
+      <div className="bg-card p-6 rounded-lg shadow-sm min-h-[180px]">
         <div className="flex justify-between items-center mb-4">
           <h3 className="font-medium">Distribuição por Cluster</h3>
         </div>
@@ -340,12 +340,12 @@ const TaskStats = ({ darkMode, horasUsadas, horasDisponiveis, view, dataSelecion
               <div key={cluster} className="flex items-center flex-wrap gap-2">
                 <div className="flex items-center min-w-[150px] flex-1">
                   <div className={`w-3 h-3 rounded-full mr-2 ${clusterColor}`}></div>
-                  <span className={`text-sm ${darkMode ? 'text-gray-300' : ''}`}>{cluster}</span>
+                  <span className="text-sm">{cluster}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="font-medium mr-2">{horasCluster}h</span>
-                  <span className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>({porcentagem}%)</span>
-                  <div className="w-24 bg-gray-200 rounded-full h-2">
+                  <span className="text-sm text-muted-foreground">({porcentagem}%)</span>
+                  <div className="w-24 bg-secondary rounded-full h-2">
                     <div 
                       className={`h-2 rounded-full ${clusterColor}`} 
                       style={{ width: `${(dadosGrafico[cluster] || 0) / maxValor * 100}%` }}
@@ -361,4 +361,4 @@ const TaskStats = ({ darkMode, horasUsadas, horasDisponiveis, view, dataSelecion
   );
 };
 
-export default TaskStats; 
+export default TaskStats;

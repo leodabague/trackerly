@@ -11,7 +11,6 @@ const AutocompleteInput = ({
   onBlur,
   placeholder = '',
   className = '',
-  darkMode = false,
   required = false,
   autoFocus = false
 }) => {
@@ -90,7 +89,7 @@ const AutocompleteInput = ({
             size={16} 
             className={`absolute right-2 top-1/2 transform -translate-y-1/2 pointer-events-none transition-transform duration-200 ${
               showSuggestions ? 'rotate-180' : ''
-            } ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}
+            } text-muted-foreground`}
           />
         )}
       </div>
@@ -98,11 +97,7 @@ const AutocompleteInput = ({
       {showSuggestions && suggestions.length > 0 && (
         <div 
           ref={suggestionsRef}
-          className={`absolute z-50 w-full mt-1 max-h-40 overflow-y-auto rounded-md border shadow-lg ${
-            darkMode 
-              ? 'bg-gray-700 border-gray-600' 
-              : 'bg-white border-gray-300'
-          }`}
+          className="absolute z-50 w-full mt-1 max-h-40 overflow-y-auto rounded-md border shadow-lg bg-card border-border"
         >
           {suggestions.map((suggestion, index) => (
             <button
@@ -112,11 +107,7 @@ const AutocompleteInput = ({
               data-suggestion-index={index}
               onClick={() => onSelect(suggestion)}
               onKeyDown={(e) => handleSuggestionKeyDown(e, suggestion, index)}
-              className={`w-full text-left px-3 py-2 text-sm transition-colors duration-150 focus:outline-none ${
-                darkMode
-                  ? 'text-gray-200 hover:bg-gray-600 focus:bg-gray-600'
-                  : 'text-gray-900 hover:bg-gray-100 focus:bg-gray-100'
-              } ${index === 0 ? 'rounded-t-md' : ''} ${
+              className={`w-full text-left px-3 py-2 text-sm transition-colors duration-150 focus:outline-none text-foreground hover:bg-accent focus:bg-accent ${index === 0 ? 'rounded-t-md' : ''} ${
                 index === suggestions.length - 1 ? 'rounded-b-md' : ''
               }`}
             >

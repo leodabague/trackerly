@@ -3,7 +3,7 @@ import { Save, Download, FileText, Settings, X, Upload } from 'lucide-react';
 import { useTaskContext } from '../contexts/TaskContext';
 import html2pdf from 'html2pdf.js';
 
-const ActionButtons = forwardRef(({ darkMode, resetFiltros }, ref) => {
+const ActionButtons = forwardRef(({ resetFiltros }, ref) => {
   const { tarefas, clusters, configuracoes, setConfiguracoes, setAllData } = useTaskContext();
   const [showExportModal, setShowExportModal] = useState(false);
   const [showConfigModal, setShowConfigModal] = useState(false);
@@ -331,7 +331,7 @@ const ActionButtons = forwardRef(({ darkMode, resetFiltros }, ref) => {
       <div className="flex flex-wrap justify-center gap-4 mb-8">
         <button 
           onClick={salvarDados}
-          className="px-4 py-2 bg-green-500 text-white rounded-md flex items-center gap-2 w-full sm:w-auto justify-center"
+          className="px-4 py-2 bg-primary text-primary-foreground rounded-md flex items-center gap-2 w-full sm:w-auto justify-center"
         >
           <Save size={16} />
           Salvar Dados
@@ -339,7 +339,7 @@ const ActionButtons = forwardRef(({ darkMode, resetFiltros }, ref) => {
         
         <button 
           onClick={() => setShowExportModal(true)}
-          className="px-4 py-2 bg-purple-500 text-white rounded-md flex items-center gap-2 w-full sm:w-auto justify-center relative group"
+          className="px-4 py-2 bg-secondary text-secondary-foreground rounded-md flex items-center gap-2 w-full sm:w-auto justify-center relative group"
           title="Exportar/Importar Dados (Ctrl+E)"
         >
           <Download size={16} />
@@ -351,7 +351,7 @@ const ActionButtons = forwardRef(({ darkMode, resetFiltros }, ref) => {
         
         <button 
           onClick={() => setShowEmailModal(true)}
-          className="px-4 py-2 bg-blue-500 text-white rounded-md flex items-center gap-2 w-full sm:w-auto justify-center"
+          className="px-4 py-2 bg-secondary text-secondary-foreground rounded-md flex items-center gap-2 w-full sm:w-auto justify-center"
         >
           <FileText size={16} />
           Gerar Relatório PDF
@@ -359,7 +359,7 @@ const ActionButtons = forwardRef(({ darkMode, resetFiltros }, ref) => {
 
         <button 
           onClick={() => setShowConfigModal(true)}
-          className="px-4 py-2 bg-gray-500 text-white rounded-md flex items-center gap-2 w-full sm:w-auto justify-center relative group"
+          className="px-4 py-2 bg-secondary text-secondary-foreground rounded-md flex items-center gap-2 w-full sm:w-auto justify-center relative group"
           title="Configurações (Ctrl+,)"
         >
           <Settings size={16} />
@@ -372,7 +372,7 @@ const ActionButtons = forwardRef(({ darkMode, resetFiltros }, ref) => {
       
       {/* Mensagem de Status */}
       {statusSalvamento && (
-        <div className="fixed bottom-4 right-4 bg-gray-800 text-white px-4 py-2 rounded-md shadow-lg">
+        <div className="fixed bottom-4 right-4 bg-card text-card-foreground px-4 py-2 rounded-md shadow-lg">
           {statusSalvamento}
         </div>
       )}
@@ -380,7 +380,7 @@ const ActionButtons = forwardRef(({ darkMode, resetFiltros }, ref) => {
       {/* Notificação */}
       {notification.message && (
         <div className={`fixed bottom-4 right-4 px-4 py-2 rounded-md shadow-lg ${
-          notification.type === 'success' ? 'bg-green-500 text-white' : 'bg-red-500 text-white'
+          notification.type === 'success' ? 'bg-primary text-primary-foreground' : 'bg-destructive text-destructive-foreground'
         }`}>
           {notification.message}
         </div>
@@ -389,9 +389,9 @@ const ActionButtons = forwardRef(({ darkMode, resetFiltros }, ref) => {
       {/* Loading */}
       {isLoading && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-xl flex flex-col items-center">
-            <div className="animate-spin h-8 w-8 text-blue-500 mb-2 border-4 border-blue-500 border-t-transparent rounded-full"></div>
-            <p className="text-gray-700 dark:text-gray-300">Gerando relatório...</p>
+          <div className="bg-card p-6 rounded-lg shadow-xl flex flex-col items-center">
+            <div className="animate-spin h-8 w-8 text-primary mb-2 border-4 border-primary border-t-transparent rounded-full"></div>
+            <p className="text-foreground">Gerando relatório...</p>
           </div>
         </div>
       )}
@@ -399,40 +399,32 @@ const ActionButtons = forwardRef(({ darkMode, resetFiltros }, ref) => {
       {/* Modal de Exportar/Importar */}
       {showExportModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className={`${darkMode ? 'bg-gray-800' : 'bg-white'} rounded-lg p-6 w-full max-w-md`}>
+          <div className="bg-card rounded-lg p-6 w-full max-w-md">
             <div className="flex justify-between items-center mb-4">
-              <h3 className={`text-lg font-medium ${darkMode ? 'text-gray-100' : 'text-gray-900'}`}>Exportar/Importar Dados</h3>
-              <button onClick={() => setShowExportModal(false)} className={`${darkMode ? 'text-gray-400 hover:text-gray-300' : 'text-gray-400 hover:text-gray-600'}`}>
+              <h3 className="text-lg font-medium text-foreground">Exportar/Importar Dados</h3>
+              <button onClick={() => setShowExportModal(false)} className="text-muted-foreground hover:text-foreground">
                 <X size={20} />
               </button>
             </div>
             
             <div className="space-y-6">
               <div>
-                <h4 className={`text-md font-medium mb-2 ${darkMode ? 'text-gray-200' : 'text-gray-900'}`}>Exportar Dados</h4>
+                <h4 className="text-md font-medium mb-2 text-foreground">Exportar Dados</h4>
                 <div className="space-y-3">
                   <div>
-                    <label className={`block text-sm font-medium ${darkMode ? 'text-gray-300' : 'text-gray-700'} mb-1`}>Nome do Arquivo</label>
+                    <label className="block text-sm font-medium text-muted-foreground mb-1">Nome do Arquivo</label>
                     <input
                       type="text"
                       value={nomeArquivo}
                       onChange={(e) => setNomeArquivo(e.target.value)}
-                      className={`w-full p-2 border rounded-md ${
-                        darkMode 
-                          ? 'bg-gray-700 border-gray-600 text-gray-100 placeholder-gray-400' 
-                          : 'bg-white border-gray-300 text-gray-900 placeholder-gray-400'
-                      }`}
+                      className="w-full p-2 border rounded-md bg-input text-foreground placeholder-muted-foreground"
                       placeholder="horas-consultoria-dados.json"
                     />
                   </div>
                   
                   <button
                     onClick={exportarDados}
-                    className={`w-full py-2 rounded-md flex items-center justify-center gap-2 ${
-                      darkMode
-                        ? 'bg-purple-600 hover:bg-purple-700 text-white'
-                        : 'bg-purple-500 hover:bg-purple-600 text-white'
-                    }`}
+                    className="w-full py-2 rounded-md flex items-center justify-center gap-2 bg-primary text-primary-foreground hover:bg-primary/90"
                   >
                     <Download size={16} />
                     Exportar Dados
@@ -440,16 +432,12 @@ const ActionButtons = forwardRef(({ darkMode, resetFiltros }, ref) => {
                 </div>
               </div>
               
-              <div className={`border-t ${darkMode ? 'border-gray-700' : 'border-gray-200'} pt-4`}>
-                <h4 className={`text-md font-medium mb-2 ${darkMode ? 'text-gray-200' : 'text-gray-900'}`}>Importar Dados</h4>
+              <div className="border-t border-border pt-4">
+                <h4 className="text-md font-medium mb-2 text-foreground">Importar Dados</h4>
                 <div className="space-y-2">
-                  <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>Selecione um arquivo JSON exportado anteriormente:</p>
+                  <p className="text-sm text-muted-foreground">Selecione um arquivo JSON exportado anteriormente:</p>
                   
-                  <label className={`block w-full py-2 text-center rounded-md cursor-pointer border ${
-                    darkMode 
-                      ? 'bg-gray-700 border-gray-600 hover:bg-gray-600 text-gray-200' 
-                      : 'bg-gray-100 border-gray-300 hover:bg-gray-200 text-gray-700'
-                  }`}>
+                  <label className="block w-full py-2 text-center rounded-md cursor-pointer border bg-background hover:bg-accent">
                     <Upload size={16} className="inline-block mr-2" />
                     Selecionar Arquivo
                     <input
@@ -469,57 +457,45 @@ const ActionButtons = forwardRef(({ darkMode, resetFiltros }, ref) => {
       {/* Modal de Configurações */}
       {showConfigModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className={`${darkMode ? 'bg-gray-800' : 'bg-white'} rounded-lg p-6 w-full max-w-md`}>
+          <div className="bg-card rounded-lg p-6 w-full max-w-md">
             <div className="flex justify-between items-center mb-4">
-              <h3 className={`text-lg font-medium ${darkMode ? 'text-gray-100' : 'text-gray-900'}`}>Configurações</h3>
-              <button onClick={() => setShowConfigModal(false)} className={`${darkMode ? 'text-gray-400 hover:text-gray-300' : 'text-gray-400 hover:text-gray-600'}`}>
+              <h3 className="text-lg font-medium text-foreground">Configurações</h3>
+              <button onClick={() => setShowConfigModal(false)} className="text-muted-foreground hover:text-foreground">
                 <X size={20} />
               </button>
             </div>
             
             <div className="space-y-4">
               <div>
-                <label className={`block text-sm font-medium ${darkMode ? 'text-gray-300' : 'text-gray-700'} mb-1`}>Horas Mensais</label>
+                <label className="block text-sm font-medium text-muted-foreground mb-1">Horas Mensais</label>
                 <input
                   type="number"
                   min="1"
                   value={configuracoes.horasMensais}
                   onChange={(e) => setConfiguracoes({...configuracoes, horasMensais: parseInt(e.target.value) || 1})}
-                  className={`w-full p-2 border rounded-md ${
-                    darkMode 
-                      ? 'bg-gray-700 border-gray-600 text-gray-100' 
-                      : 'bg-white border-gray-300 text-gray-900'
-                  }`}
+                  className="w-full p-2 border rounded-md bg-input text-foreground"
                 />
               </div>
               
               <div>
-                <label className={`block text-sm font-medium ${darkMode ? 'text-gray-300' : 'text-gray-700'} mb-1`}>Horas Semanais</label>
+                <label className="block text-sm font-medium text-muted-foreground mb-1">Horas Semanais</label>
                 <input
                   type="number"
                   min="1"
                   value={configuracoes.horasSemanais}
                   onChange={(e) => setConfiguracoes({...configuracoes, horasSemanais: parseInt(e.target.value) || 1})}
-                  className={`w-full p-2 border rounded-md ${
-                    darkMode 
-                      ? 'bg-gray-700 border-gray-600 text-gray-100' 
-                      : 'bg-white border-gray-300 text-gray-900'
-                  }`}
+                  className="w-full p-2 border rounded-md bg-input text-foreground"
                 />
               </div>
               
               <div>
-                <label className={`block text-sm font-medium ${darkMode ? 'text-gray-300' : 'text-gray-700'} mb-1`}>Horas Diárias</label>
+                <label className="block text-sm font-medium text-muted-foreground mb-1">Horas Diárias</label>
                 <input
                   type="number"
                   min="1"
                   value={configuracoes.horasDiarias}
                   onChange={(e) => setConfiguracoes({...configuracoes, horasDiarias: parseInt(e.target.value) || 1})}
-                  className={`w-full p-2 border rounded-md ${
-                    darkMode 
-                      ? 'bg-gray-700 border-gray-600 text-gray-100' 
-                      : 'bg-white border-gray-300 text-gray-900'
-                  }`}
+                  className="w-full p-2 border rounded-md bg-input text-foreground"
                 />
               </div>
               
@@ -528,7 +504,7 @@ const ActionButtons = forwardRef(({ darkMode, resetFiltros }, ref) => {
                   setShowConfigModal(false);
                   salvarDados();
                 }}
-                className="w-full py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+                className="w-full py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90"
               >
                 Salvar Configurações
               </button>
@@ -540,27 +516,23 @@ const ActionButtons = forwardRef(({ darkMode, resetFiltros }, ref) => {
       {/* Modal de Email para Relatório */}
       {showEmailModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className={`${darkMode ? 'bg-gray-800' : 'bg-white'} rounded-lg p-6 w-full max-w-md`}>
+          <div className="bg-card rounded-lg p-6 w-full max-w-md">
             <div className="flex justify-between items-center mb-4">
-              <h3 className={`text-lg font-medium ${darkMode ? 'text-gray-100' : 'text-gray-900'}`}>Gerar Relatório Mensal</h3>
-              <button onClick={() => setShowEmailModal(false)} className={`${darkMode ? 'text-gray-400 hover:text-gray-300' : 'text-gray-400 hover:text-gray-600'}`}>
+              <h3 className="text-lg font-medium text-foreground">Gerar Relatório Mensal</h3>
+              <button onClick={() => setShowEmailModal(false)} className="text-muted-foreground hover:text-foreground">
                 <X size={20} />
               </button>
             </div>
             
             <div className="space-y-4">
-              <p className={`${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+              <p className="text-muted-foreground">
                 Selecione o mês para o qual deseja gerar o relatório:
               </p>
               
               <div className="flex flex-col space-y-3">
                 <button
                   onClick={() => gerarRelatorio(false)}
-                  className={`w-full py-2 rounded-md flex items-center justify-center gap-2 ${
-                    darkMode
-                      ? 'bg-blue-600 hover:bg-blue-700 text-white'
-                      : 'bg-blue-500 hover:bg-blue-600 text-white'
-                  }`}
+                  className="w-full py-2 rounded-md flex items-center justify-center gap-2 bg-primary text-primary-foreground hover:bg-primary/90"
                 >
                   <FileText size={16} />
                   Gerar para o Mês Atual
@@ -568,11 +540,7 @@ const ActionButtons = forwardRef(({ darkMode, resetFiltros }, ref) => {
                 
                 <button
                   onClick={() => gerarRelatorio(true)}
-                  className={`w-full py-2 rounded-md flex items-center justify-center gap-2 ${
-                    darkMode
-                      ? 'bg-blue-600 hover:bg-blue-700 text-white'
-                      : 'bg-blue-500 hover:bg-blue-600 text-white'
-                  }`}
+                  className="w-full py-2 rounded-md flex items-center justify-center gap-2 bg-primary text-primary-foreground hover:bg-primary/90"
                 >
                   <FileText size={16} />
                   Gerar para o Mês Anterior
@@ -588,4 +556,4 @@ const ActionButtons = forwardRef(({ darkMode, resetFiltros }, ref) => {
 
 ActionButtons.displayName = 'ActionButtons';
 
-export default ActionButtons; 
+export default ActionButtons;

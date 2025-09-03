@@ -4,7 +4,7 @@ import { useTaskContext } from '../contexts/TaskContext';
 import { useAutocomplete } from '../hooks/useAutocomplete';
 import AutocompleteInput from './AutocompleteInput';
 
-const TaskForm = ({ onClose, darkMode, tarefaEditando }) => {
+const TaskForm = ({ onClose, tarefaEditando }) => {
   const { adicionarTarefa, editarTarefa, clusters } = useTaskContext();
   const nomeInputRef = useRef(null);
   const [novaTarefa, setNovaTarefa] = useState({
@@ -99,14 +99,14 @@ const TaskForm = ({ onClose, darkMode, tarefaEditando }) => {
   };
 
   return (
-    <div className={`${darkMode ? 'bg-gray-800' : 'bg-white'} rounded-lg p-6 w-full max-w-md`}>
+    <div className="bg-card rounded-lg p-6 w-full max-w-md">
       <div className="flex justify-between items-center mb-4">
-        <h3 className={`text-lg font-medium ${darkMode ? 'text-gray-100' : 'text-gray-900'}`}>
+        <h3 className="text-lg font-medium text-foreground">
           {tarefaEditando ? 'Editar Tarefa' : 'Adicionar Nova Tarefa'}
         </h3>
         <button 
           onClick={onClose} 
-          className={`${darkMode ? 'text-gray-400 hover:text-gray-300' : 'text-gray-400 hover:text-gray-600'}`}
+          className="text-muted-foreground hover:text-foreground"
         >
           <X size={20} />
         </button>
@@ -114,7 +114,7 @@ const TaskForm = ({ onClose, darkMode, tarefaEditando }) => {
       
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label className={`block text-sm font-medium ${darkMode ? 'text-gray-300' : 'text-gray-700'} mb-1`}>
+          <label className="block text-sm font-medium text-muted-foreground mb-1">
             Nome da Tarefa
           </label>
           <AutocompleteInput
@@ -132,37 +132,28 @@ const TaskForm = ({ onClose, darkMode, tarefaEditando }) => {
             suggestions={suggestions}
             showSuggestions={showSuggestions}
             placeholder="Ex: Reunião com cliente"
-            className={`w-full p-2 border rounded-md ${
-              darkMode 
-                ? 'bg-gray-700 border-gray-600 text-gray-100 placeholder-gray-400' 
-                : 'bg-white border-gray-300 text-gray-900 placeholder-gray-400'
-            }`}
-            darkMode={darkMode}
+            className="w-full p-2 border rounded-md bg-input text-foreground placeholder-muted-foreground"
             required
             autoFocus
           />
         </div>
         
         <div>
-          <label className={`block text-sm font-medium ${darkMode ? 'text-gray-300' : 'text-gray-700'} mb-1`}>
+          <label className="block text-sm font-medium text-muted-foreground mb-1">
             Data
           </label>
           <input
             type="date"
             value={novaTarefa.data}
             onChange={(e) => setNovaTarefa({...novaTarefa, data: e.target.value})}
-            className={`w-full p-2 border rounded-md ${
-              darkMode 
-                ? 'bg-gray-700 border-gray-600 text-gray-100' 
-                : 'bg-white border-gray-300 text-gray-900'
-            }`}
+            className="w-full p-2 border rounded-md bg-input text-foreground"
             required
           />
         </div>
         
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className={`block text-sm font-medium ${darkMode ? 'text-gray-300' : 'text-gray-700'} mb-1`}>
+            <label className="block text-sm font-medium text-muted-foreground mb-1">
               Horas
             </label>
             <input
@@ -170,33 +161,21 @@ const TaskForm = ({ onClose, darkMode, tarefaEditando }) => {
               min="0"
               value={novaTarefa.horas}
               onChange={(e) => setNovaTarefa({...novaTarefa, horas: parseInt(e.target.value) || 0})}
-              className={`w-full p-2 border rounded-md ${
-                darkMode 
-                  ? 'bg-gray-700 border-gray-600 text-gray-100' 
-                  : 'bg-white border-gray-300 text-gray-900'
-              }`}
+              className="w-full p-2 border rounded-md bg-input text-foreground"
               required
             />
             <div className="flex justify-between mt-2 gap-2">
               <button
                 type="button"
                 onClick={() => ajustarHoras(-1)}
-                className={`flex-1 py-1 px-2 rounded-md text-sm transition-colors duration-200 ${
-                  darkMode
-                    ? 'bg-gray-700 hover:bg-gray-600 text-gray-200'
-                    : 'bg-gray-200 hover:bg-gray-300 text-gray-700'
-                }`}
+                className="flex-1 py-1 px-2 rounded-md text-sm bg-secondary text-secondary-foreground hover:bg-secondary/80"
               >
                 -1h
               </button>
               <button
                 type="button"
                 onClick={() => ajustarHoras(1)}
-                className={`flex-1 py-1 px-2 rounded-md text-sm transition-colors duration-200 ${
-                  darkMode
-                    ? 'bg-gray-700 hover:bg-gray-600 text-gray-200'
-                    : 'bg-gray-200 hover:bg-gray-300 text-gray-700'
-                }`}
+                className="flex-1 py-1 px-2 rounded-md text-sm bg-secondary text-secondary-foreground hover:bg-secondary/80"
               >
                 +1h
               </button>
@@ -204,7 +183,7 @@ const TaskForm = ({ onClose, darkMode, tarefaEditando }) => {
           </div>
           
           <div>
-            <label className={`block text-sm font-medium ${darkMode ? 'text-gray-300' : 'text-gray-700'} mb-1`}>
+            <label className="block text-sm font-medium text-muted-foreground mb-1">
               Minutos
             </label>
             <input
@@ -213,44 +192,28 @@ const TaskForm = ({ onClose, darkMode, tarefaEditando }) => {
               max="59"
               value={novaTarefa.minutos}
               onChange={(e) => setNovaTarefa({...novaTarefa, minutos: parseInt(e.target.value) || 0})}
-              className={`w-full p-2 border rounded-md ${
-                darkMode 
-                  ? 'bg-gray-700 border-gray-600 text-gray-100' 
-                  : 'bg-white border-gray-300 text-gray-900'
-              }`}
+              className="w-full p-2 border rounded-md bg-input text-foreground"
               required
             />
             <div className="flex justify-between mt-2 gap-2">
               <button
                 type="button"
                 onClick={() => ajustarMinutos(10)}
-                className={`flex-1 py-1 px-2 rounded-md text-sm transition-colors duration-200 ${
-                  darkMode
-                    ? 'bg-gray-700 hover:bg-gray-600 text-gray-200'
-                    : 'bg-gray-200 hover:bg-gray-300 text-gray-700'
-                }`}
+                className="flex-1 py-1 px-2 rounded-md text-sm bg-secondary text-secondary-foreground hover:bg-secondary/80"
               >
                 +10m
               </button>
               <button
                 type="button"
                 onClick={() => ajustarMinutos(20)}
-                className={`flex-1 py-1 px-2 rounded-md text-sm transition-colors duration-200 ${
-                  darkMode
-                    ? 'bg-gray-700 hover:bg-gray-600 text-gray-200'
-                    : 'bg-gray-200 hover:bg-gray-300 text-gray-700'
-                }`}
+                className="flex-1 py-1 px-2 rounded-md text-sm bg-secondary text-secondary-foreground hover:bg-secondary/80"
               >
                 +20m
               </button>
               <button
                 type="button"
                 onClick={() => ajustarMinutos(30)}
-                className={`flex-1 py-1 px-2 rounded-md text-sm transition-colors duration-200 ${
-                  darkMode
-                    ? 'bg-gray-700 hover:bg-gray-600 text-gray-200'
-                    : 'bg-gray-200 hover:bg-gray-300 text-gray-700'
-                }`}
+                className="flex-1 py-1 px-2 rounded-md text-sm bg-secondary text-secondary-foreground hover:bg-secondary/80"
               >
                 +30m
               </button>
@@ -259,17 +222,13 @@ const TaskForm = ({ onClose, darkMode, tarefaEditando }) => {
         </div>
         
         <div>
-          <label className={`block text-sm font-medium ${darkMode ? 'text-gray-300' : 'text-gray-700'} mb-1`}>
+          <label className="block text-sm font-medium text-muted-foreground mb-1">
             Cluster
           </label>
           <select
             value={novaTarefa.cluster}
             onChange={(e) => setNovaTarefa({...novaTarefa, cluster: e.target.value})}
-            className={`w-full p-2 border rounded-md ${
-              darkMode 
-                ? 'bg-gray-700 border-gray-600 text-gray-100' 
-                : 'bg-white border-gray-300 text-gray-900'
-            }`}
+            className="w-full p-2 border rounded-md bg-input text-foreground"
             required
           >
             {clusters.map(cluster => (
@@ -280,11 +239,7 @@ const TaskForm = ({ onClose, darkMode, tarefaEditando }) => {
         
         <button
           type="submit"
-          className={`w-full py-2 rounded-md transition-colors duration-200 ${
-            darkMode
-              ? 'bg-blue-600 hover:bg-blue-700 text-white'
-              : 'bg-blue-500 hover:bg-blue-600 text-white'
-          }`}
+          className="w-full py-2 rounded-md bg-primary text-primary-foreground hover:bg-primary/90"
         >
           {tarefaEditando ? 'Salvar Alterações' : 'Adicionar Tarefa'}
         </button>
@@ -293,4 +248,4 @@ const TaskForm = ({ onClose, darkMode, tarefaEditando }) => {
   );
 };
 
-export default TaskForm; 
+export default TaskForm;

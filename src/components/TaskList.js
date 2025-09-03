@@ -3,8 +3,9 @@ import { Plus } from 'lucide-react';
 import { useTaskContext } from '../contexts/TaskContext';
 import TaskItem from './TaskItem';
 import TaskForm from './TaskForm';
+import EmptyState from './EmptyState';
 
-const TaskList = forwardRef(({ darkMode, view, dataSelecionada, weekStart, monthStart }, ref) => {
+const TaskList = forwardRef(({ view, dataSelecionada, weekStart, monthStart }, ref) => {
   const { tarefas, removerTarefa } = useTaskContext();
   const [showModal, setShowModal] = useState(false);
   const [tarefaEditando, setTarefaEditando] = useState(null);
@@ -162,14 +163,14 @@ const TaskList = forwardRef(({ darkMode, view, dataSelecionada, weekStart, month
   }));
 
   return (
-    <div className={`${darkMode ? 'bg-gray-800' : 'bg-white'} rounded-lg shadow-sm p-6 mb-8`}>
+    <div className="bg-card rounded-lg shadow-sm p-6 mb-8">
       <div className="flex justify-between items-center mb-4">
-        <h2 className={`text-lg font-medium ${darkMode ? 'text-gray-200' : ''}`}>
+        <h2 className="text-lg font-medium">
           Tarefas Registradas
         </h2>
         <button 
           onClick={() => setShowModal(true)}
-          className="px-3 py-1 bg-blue-500 text-white rounded-md flex items-center gap-1 relative group"
+          className="px-3 py-1 bg-primary text-primary-foreground rounded-md flex items-center gap-1 relative group"
           title="Adicionar Nova Tarefa (Ctrl+M)"
         >
           <Plus size={16} />
@@ -181,16 +182,13 @@ const TaskList = forwardRef(({ darkMode, view, dataSelecionada, weekStart, month
       </div>
       
       {tarefasFiltradas.length === 0 ? (
-        <div className={`text-center py-8 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-          Nenhuma tarefa registrada para este período
-        </div>
+        <EmptyState onAddTask={() => setShowModal(true)} />
       ) : (
         <div className="space-y-2">
           {tarefasExibidas.map((tarefa) => (
             <TaskItem
               key={tarefa.id}
               tarefa={tarefa}
-              darkMode={darkMode}
               onEdit={setTarefaEditando}
               onDelete={removerTarefa}
             />
@@ -199,11 +197,7 @@ const TaskList = forwardRef(({ darkMode, view, dataSelecionada, weekStart, month
           {tarefasFiltradas.length > 5 && (
             <button
               onClick={() => setListaExpandida(!listaExpandida)}
-              className={`w-full mt-4 px-4 py-2 text-sm font-medium rounded-md ${
-                darkMode 
-                  ? 'bg-gray-700 text-gray-300 hover:bg-gray-600' 
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              }`}
+              className="w-full mt-4 px-4 py-2 text-sm font-medium rounded-md bg-secondary text-secondary-foreground hover:bg-secondary/80"
             >
               {listaExpandida ? 'Ver menos' : 'Ver mais'}
             </button>
@@ -214,7 +208,7 @@ const TaskList = forwardRef(({ darkMode, view, dataSelecionada, weekStart, month
       {/* Modal de Adicionar Tarefa */}
       {showModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <TaskForm onClose={() => setShowModal(false)} darkMode={darkMode} />
+          <TaskForm onClose={() => setShowModal(false)} />
         </div>
       )}
 
@@ -223,7 +217,6 @@ const TaskList = forwardRef(({ darkMode, view, dataSelecionada, weekStart, month
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <TaskForm 
             onClose={() => setTarefaEditando(null)} 
-            darkMode={darkMode}
             tarefaEditando={tarefaEditando}
           />
         </div>
@@ -234,4 +227,4 @@ const TaskList = forwardRef(({ darkMode, view, dataSelecionada, weekStart, month
 
 TaskList.displayName = 'TaskList';
 
-export default TaskList; 
+export default TaskList;
