@@ -1,21 +1,20 @@
 import { useState, useEffect } from 'react';
 
 export const useTheme = () => {
-  const [darkMode, setDarkMode] = useState(() => {
-    const temaSalvo = localStorage.getItem('darkMode');
-    if (temaSalvo !== null) {
-      return temaSalvo === 'true';
+  const [theme, setTheme] = useState(() => {
+    const storedTheme = localStorage.getItem('theme');
+    if (storedTheme) {
+      return storedTheme;
     }
-    return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
   });
 
   useEffect(() => {
-    localStorage.setItem('darkMode', darkMode.toString());
-  }, [darkMode]);
+    const root = window.document.documentElement;
+    root.classList.remove('light', 'dark');
+    root.classList.add(theme);
+    localStorage.setItem('theme', theme);
+  }, [theme]);
 
-  const alternarTema = () => {
-    setDarkMode(!darkMode);
-  };
-
-  return { darkMode, alternarTema };
-}; 
+  return { theme, setTheme };
+};

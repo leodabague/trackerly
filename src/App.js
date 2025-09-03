@@ -13,7 +13,7 @@ import ShortcutNotification from './components/ShortcutNotification';
 import WelcomeTooltip from './components/WelcomeTooltip';
 
 const AppContent = () => {
-  const { darkMode, alternarTema } = useTheme();
+  const { theme, setTheme } = useTheme();
   const {
     view,
     setView,
@@ -88,57 +88,55 @@ const AppContent = () => {
   // Initialize keyboard shortcuts
   useKeyboardShortcuts(shortcuts);
 
+  const alternarTema = () => {
+    setTheme(theme === 'light' ? 'dark' : 'light');
+  };
+
   return (
-    <>
-      <div className={`fixed inset-0 ${darkMode ? 'bg-gray-900' : 'bg-gray-50'} transition-colors duration-300`} />
-      <div className={`relative max-w-4xl mx-auto p-4 min-h-screen transition-colors duration-300 ${darkMode ? 'text-gray-100' : 'text-gray-800'}`}>
-        <Header darkMode={darkMode} alternarTema={alternarTema} />
-        
-        <TaskFilters
-          darkMode={darkMode}
-          view={view}
-          setView={setView}
-          formatarPeriodo={formatarPeriodo}
-          navegarData={navegarData}
-        />
-        
-        <TaskStats
-          darkMode={darkMode}
-          horasUsadas={horasUsadas}
-          horasDisponiveis={horasDisponiveis}
-          view={view}
-          dataSelecionada={dataSelecionada}
-          weekStart={weekStart}
-          monthStart={monthStart}
-        />
-        
-        <ActionButtons 
-          ref={actionButtonsRef}
-          darkMode={darkMode} 
-          resetFiltros={resetFiltros}
-        />
-        
-        <TaskList
-          ref={taskListRef}
-          darkMode={darkMode}
-          view={view}
-          dataSelecionada={dataSelecionada}
-          weekStart={weekStart}
-          monthStart={monthStart}
-        />
-        
-        {/* Keyboard shortcuts help */}
-        <KeyboardShortcuts ref={keyboardShortcutsRef} darkMode={darkMode} />
-        
-        {/* Shortcut notification */}
-        <ShortcutNotification darkMode={darkMode} />
-        
-        {/* Welcome tooltip for keyboard shortcuts */}
-        <WelcomeTooltip ref={welcomeTooltipRef} darkMode={darkMode} />
-      </div>
-    </>
+    <div className="max-w-4xl mx-auto p-4 min-h-screen">
+      <Header alternarTema={alternarTema} />
+      
+      <TaskFilters
+        view={view}
+        setView={setView}
+        formatarPeriodo={formatarPeriodo}
+        navegarData={navegarData}
+      />
+      
+      <TaskStats
+        horasUsadas={horasUsadas}
+        horasDisponiveis={horasDisponiveis}
+        view={view}
+        dataSelecionada={dataSelecionada}
+        weekStart={weekStart}
+        monthStart={monthStart}
+      />
+      
+      <ActionButtons 
+        ref={actionButtonsRef}
+        resetFiltros={resetFiltros}
+      />
+      
+      <TaskList
+        ref={taskListRef}
+        view={view}
+        dataSelecionada={dataSelecionada}
+        weekStart={weekStart}
+        monthStart={monthStart}
+      />
+      
+      {/* Keyboard shortcuts help */}
+      <KeyboardShortcuts ref={keyboardShortcutsRef} />
+      
+      {/* Shortcut notification */}
+      <ShortcutNotification />
+      
+      {/* Welcome tooltip for keyboard shortcuts */}
+      <WelcomeTooltip ref={welcomeTooltipRef} />
+    </div>
   );
 };
+
 
 const App = () => {
   return (
