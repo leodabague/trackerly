@@ -1,7 +1,8 @@
 import React, { useState, forwardRef, useImperativeHandle } from 'react';
 import { Save, Download, FileText, Settings, X, Upload } from 'lucide-react';
 import { useTaskContext } from '../contexts/TaskContext';
-import html2pdf from 'html2pdf.js';
+import { jsPDF } from 'jspdf';
+import autoTable from 'jspdf-autotable';
 
 const ActionButtons = forwardRef(({ resetFiltros }, ref) => {
   const { tarefas, clusters, configuracoes, setConfiguracoes, setAllData } = useTaskContext();
@@ -207,10 +208,6 @@ const ActionButtons = forwardRef(({ resetFiltros }, ref) => {
         return;
       }
       
-      // Criar elemento temporário para o relatório
-      const relatorioDiv = document.createElement('div');
-      relatorioDiv.className = 'p-8';
-      
       // Calcular totais por cluster
       const totaisPorCluster = {};
       clusters.forEach(cluster => {
@@ -218,94 +215,67 @@ const ActionButtons = forwardRef(({ resetFiltros }, ref) => {
           .filter(tarefa => tarefa.cluster === cluster)
           .reduce((acc, tarefa) => acc + tarefa.horasTotal, 0);
       });
-      
-      // Gerar HTML do relatório
-      relatorioDiv.innerHTML = `
-        <div style="font-family: Arial, sans-serif;">
-          <h1 style="text-align: center; margin-bottom: 20px;">Relatório de Horas - ${dataRelatorio.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })}</h1>
-          
-          <div style="margin-bottom: 20px;">
-            <h2 style="margin-bottom: 10px;">Resumo</h2>
-            <p>Total de horas registradas: ${tarefasDoMes.reduce((acc, tarefa) => acc + tarefa.horasTotal, 0).toFixed(1)}h</p>
-            <p>Meta mensal: ${configuracoes.horasMensais}h</p>
-          </div>
-          
-          <div style="margin-bottom: 20px;">
-            <h2 style="margin-bottom: 10px;">Distribuição por Cluster</h2>
-            ${Object.entries(totaisPorCluster).map(([cluster, horas]) => `
-              <p>${cluster}: ${horas.toFixed(1)}h</p>
-            `).join('')}
-          </div>
-          
-          <div style="margin-bottom: 20px;">
-            <h2 style="margin-bottom: 10px;">Detalhamento das Tarefas</h2>
-            <table style="width: 100%; border-collapse: collapse;">
-              <thead>
-                <tr style="background-color: #f3f4f6;">
-                  <th style="padding: 8px; border: 1px solid #e5e7eb; text-align: left;">Data</th>
-                  <th style="padding: 8px; border: 1px solid #e5e7eb; text-align: left;">Tarefa</th>
-                  <th style="padding: 8px; border: 1px solid #e5e7eb; text-align: left;">Cluster</th>
-                  <th style="padding: 8px; border: 1px solid #e5e7eb; text-align: right;">Horas</th>
-                </tr>
-              </thead>
-              <tbody>
-                ${tarefasDoMes.map(tarefa => {
-                  // Formatar a data corretamente
-                  let dataFormatada;
-                  
-                  // Verificar se a data está no formato DD/MM/YYYY
-                  if (typeof tarefa.data === 'string' && /^\d{2}\/\d{2}\/\d{4}$/.test(tarefa.data)) {
-                    dataFormatada = tarefa.data;
-                  } else if (tarefa._dataObj && tarefa._dataObj instanceof Date) {
-                    // Usar o objeto de data pré-processado
-                    dataFormatada = tarefa._dataObj.toLocaleDateString('pt-BR');
-                  } else {
-                    try {
-                      // Tentar converter para o formato brasileiro
-                      const parts = tarefa.data.split('/');
-                      if (parts.length === 3) {
-                        // Assumir formato DD/MM/YYYY
-                        dataFormatada = tarefa.data;
-                      } else {
-                        // Converter usando Date
-                        const data = new Date(tarefa.data);
-                        if (!isNaN(data.getTime())) {
-                          dataFormatada = data.toLocaleDateString('pt-BR');
-                        } else {
-                          dataFormatada = tarefa.data;
-                        }
-                      }
-                    } catch (error) {
-                      console.error("Erro ao formatar data para relatório:", error);
-                      dataFormatada = tarefa.data;
-                    }
-                  }
-                  
-                  return `
-                  <tr>
-                    <td style="padding: 8px; border: 1px solid #e5e7eb;">${dataFormatada}</td>
-                    <td style="padding: 8px; border: 1px solid #e5e7eb;">${tarefa.nome}</td>
-                    <td style="padding: 8px; border: 1px solid #e5e7eb;">${tarefa.cluster}</td>
-                    <td style="padding: 8px; border: 1px solid #e5e7eb; text-align: right;">${tarefa.horasTotal.toFixed(1)}h</td>
-                  </tr>
-                `}).join('')}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      `;
-      
-      // Configurações do PDF
-      const opt = {
-        margin: 1,
-        filename: `relatorio-${dataRelatorio.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })}.pdf`,
-        image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 2 },
-        jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
-      };
-      
-      // Gerar PDF
-      await html2pdf().set(opt).from(relatorioDiv).save();
+
+      const mesLabel = dataRelatorio.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
+      const totalHoras = tarefasDoMes.reduce((acc, t) => acc + t.horasTotal, 0);
+
+      // Gerar PDF com APIs nativas (sem renderização de HTML)
+      const doc = new jsPDF('portrait', 'mm', 'a4');
+      const pageWidth = doc.internal.pageSize.getWidth();
+
+      doc.setFontSize(16);
+      doc.setFont('helvetica', 'bold');
+      doc.text(`Relatório de Horas - ${mesLabel}`, pageWidth / 2, 20, { align: 'center' });
+
+      doc.setFontSize(12);
+      doc.text('Resumo', 14, 35);
+      doc.setFontSize(10);
+      doc.setFont('helvetica', 'normal');
+      doc.text(`Total de horas registradas: ${totalHoras.toFixed(1)}h`, 14, 44);
+      doc.text(`Meta mensal: ${configuracoes.horasMensais}h`, 14, 51);
+
+      let yPos = 63;
+      doc.setFontSize(12);
+      doc.setFont('helvetica', 'bold');
+      doc.text('Distribuição por Cluster', 14, yPos);
+      yPos += 8;
+      doc.setFontSize(10);
+      doc.setFont('helvetica', 'normal');
+      Object.entries(totaisPorCluster).forEach(([cluster, horas]) => {
+        doc.text(`${cluster}: ${horas.toFixed(1)}h`, 18, yPos);
+        yPos += 6;
+      });
+
+      yPos += 4;
+      doc.setFontSize(12);
+      doc.setFont('helvetica', 'bold');
+      doc.text('Detalhamento das Tarefas', 14, yPos);
+
+      autoTable(doc, {
+        startY: yPos + 5,
+        head: [['Data', 'Tarefa', 'Cluster', 'Horas']],
+        body: tarefasDoMes.map(tarefa => {
+          let dataFormatada;
+          if (typeof tarefa.data === 'string' && /^\d{2}\/\d{2}\/\d{4}$/.test(tarefa.data)) {
+            dataFormatada = tarefa.data;
+          } else if (tarefa._dataObj instanceof Date) {
+            dataFormatada = tarefa._dataObj.toLocaleDateString('pt-BR');
+          } else {
+            try {
+              const d = new Date(tarefa.data);
+              dataFormatada = isNaN(d.getTime()) ? String(tarefa.data) : d.toLocaleDateString('pt-BR');
+            } catch {
+              dataFormatada = String(tarefa.data);
+            }
+          }
+          return [dataFormatada, tarefa.nome, tarefa.cluster, `${tarefa.horasTotal.toFixed(1)}h`];
+        }),
+        styles: { fontSize: 9 },
+        headStyles: { fillColor: [243, 244, 246], textColor: [0, 0, 0] },
+        columnStyles: { 3: { halign: 'right' } }
+      });
+
+      doc.save(`relatorio-${mesLabel}.pdf`);
       
       // Notificar usuário
       setNotification({ message: 'Relatório gerado com sucesso!', type: 'success' });
